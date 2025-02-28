@@ -4,7 +4,7 @@ import App from './App.vue'
 import router from './router'
 import axios from "axios";
 import './assets/main.css'
-import BottomComponent from "@/components/basic/BottomComponent.vue";
+import BottomComponent from "@/components/basic/TopComponent.vue";
 import {createPinia, defineStore} from "pinia";
 
 export const axiosInstance = axios.create({

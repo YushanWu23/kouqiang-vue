@@ -72,7 +72,7 @@
 </template>
 
 <script setup>
-import BottomComponent from "@/components/basic/BottomComponent.vue";
+import BottomComponent from "@/components/basic/TopComponent.vue";
 import {axiosInstance, useStore} from "@/main";
 import {useRouter} from "vue-router";
 import {storeToRefs} from "pinia";

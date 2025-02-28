@@ -1,5 +1,11 @@
 <template>
   <div class="bottomBar">
+      <div class="logo">
+          <i class="fa-solid fa-tooth"></i>
+          <div class="text1">
+              口腔健康助手
+          </div>
+      </div>
     <div class="group">
       <i class="group-hover:cursor-pointer fa-solid fa-house-chimney"></i>
       <button @click="goIndex">问答</button>
@@ -14,7 +20,7 @@
     </div>
     <div class="group">
         <i class="group-hover:cursor-pointer fa-regular fa-user"></i>
-        <button>我的</button>
+        <button @click="goUserInfo">我的</button>
     </div>
   </div>
 </template>
@@ -27,35 +33,61 @@ function goIndex(){
   router.push({
     path : "/",
   })
-  console.log("首页")
+  console.log("问答")
 }
 function goOrders(){
     router.push({
         path : "/myOrders",
     })
-    console.log("进入订单页面")
+    console.log("进入购物页面")
+}
+function goUserInfo(){
+    router.push({
+        path : "/userInfo",
+    })
+    console.log("进入我的页面")
 }
 </script>
 
 <style scoped>
 .bottomBar{
     display: flex;
-    width: 100%;
-    height: 14vw;
-    color: gray;
-    bottom: 0;
-    left: 0;
-    justify-content: space-around;
+    width: 88%;
+    height: 60px;
+    color: #444444;
+    top: 30px;
+    left: 80px;
     align-items: center;
     position: fixed;
     background-color: white;
-    border-top: solid 1px #DDD;
+    border-bottom: solid 1px #DDD; /* 顶部边框 */
+    z-index: 1000; /* 确保在其他元素之上 */
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+}
+.logo{
+    display: flex;
+    width: 20%;
+    color: #0056b3;
+    align-items: center;
+    margin-left: 50px;
+    margin-right: 100px;
+}
+.text1{
+    font-size: 22px;
+    padding-left: 6px;
 }
 .bottomBar .group{
     display: flex;
-    flex-direction: column;
+    flex-direction: row;
     justify-content: center;
     align-items: center;
-    font-size: 4vw;
+    font-size: 18px;
+    padding-right: 80px;
+    padding-left: 80px;
+    border-right: solid 1px #ccc;
+}
+button{
+    margin-left: 6px;
 }
 </style>

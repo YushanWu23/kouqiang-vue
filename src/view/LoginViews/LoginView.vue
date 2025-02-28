@@ -42,7 +42,7 @@
 </template>
 
 <script setup>
-import BottomComponent from "@/components/basic/BottomComponent.vue";
+import BottomComponent from "@/components/basic/TopComponent.vue";
 import {axiosInstance, useStore} from "@/main";
 import {useRouter} from "vue-router";
 import {storeToRefs} from "pinia";
@@ -52,7 +52,7 @@ const store = useStore()
 const { user } = storeToRefs(store)
 function login() {
     if (!user.value.userId) {
-        alert('手机号码不能为空！');
+        alert('邮箱号不能为空！');
         return;
     }
     if (!user.value.password) {
@@ -74,6 +74,9 @@ function login() {
         sessionStorage.setItem("token",response.data)
         alert('登录成功！');
         /*router.go(-1)*/
+        router.push({
+            path : "/userInfo"
+        })
     }).catch(error=>{
         console.error(error);
     });
