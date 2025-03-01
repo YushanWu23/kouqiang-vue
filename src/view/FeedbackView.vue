@@ -105,13 +105,13 @@ function submit () {
     display: flex;
     flex-direction: column;
     justify-items: center;
-    margin-left: 180px;
+    margin-left: 200px;
 }
 
 h2 {
     margin-bottom: 20px;
     font-size: 30px;
-    margin-left: 270px;
+    margin-left: 250px;
     margin-top: 10px;
 }
 .button2{
@@ -136,7 +136,7 @@ button:hover {
     background-color: #0056b3; /* 鼠标悬停时的背景颜色 */
 }
 .content{
-    width:700px;
+    width:680px;
     height: 300px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
