@@ -8,7 +8,8 @@
                     <h2>个人信息</h2>
                     <div class="button1">
                         <button @click="editInfo">修改信息</button>
-                    </div><div class="body2">
+                    </div>
+                    <div class="body2">
                         <div class="head">
                             <div class="headsex" v-show="user.userSex===1">
                                 <img src="../../assets/img-new/男用户.png">
