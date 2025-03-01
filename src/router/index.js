@@ -28,6 +28,11 @@ const router = createRouter({
           name: 'userInfo',
           component: () => import("../view/LoginViews/UserInfoView.vue")
       },
+      {
+          path: '/updateUserInfo',
+          name: 'updateUserInfo',
+          component: () => import("../view/LoginViews/UpdateUserInfoView.vue")
+      },
      {
        path: '/businessList',
        name: 'businessList',
