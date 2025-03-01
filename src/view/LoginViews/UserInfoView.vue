@@ -71,7 +71,7 @@ function getSexText(contactSex){
 function editInfo() {
     /*console.log("修改信息");*/
     router.push({
-        path : "/updateInfo"
+        path : "/updateUserInfo"
     })
 }
 
