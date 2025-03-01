@@ -101,76 +101,26 @@ function logout() {
     display: flex;
     flex-direction: column;
     justify-items: center;
-    margin-left: 270px;
+    margin-left: 200px;
 }
 
 h2 {
     margin-bottom: 20px;
     font-size: 30px;
-    margin-left: 200px;
+    margin-left: 270px;
     margin-top: 10px;
 }
-.body2{
-    display: flex;
-}
-.head{
-    margin-top: 10px;
-    height: 150px;
-    width: 150px;
-}
-.info {
-
-    margin-top: 30px;
-    margin-left: 40px;
-}
-.info .text{
-    font-size: 16px;
+.knowledgeList{
+    margin-top: 20px;
     margin-bottom: 20px;
-}
-
-.button1 {
-    display: flex;
-    margin-left: 450px;
-}
-
-.button1 button {
-    padding: 5px 10px;
-    background-color: #007bff;
-    color: white;
-    border: none; /* 按钮无边框 */
-    border-radius: 4px; /* 按钮圆角 */
-    cursor: pointer; /* 鼠标悬停时显示手型 */
-    font-size: 14px;
-}
-.button2{
-    display: flex;
-    justify-items: center;
-    align-items: center;
-    margin-top: 70px;
-}
-.button2 button {
-    width: 520px;
-    padding: 10px 0px;
-    background-color: #007bff;
-    color: white;
-    border: none; /* 按钮无边框 */
-    border-radius: 4px; /* 按钮圆角 */
-    cursor: pointer;
-    font-size: 14px;
-}
-
-button:hover {
-    background-color: #0056b3;
+    overflow-y: auto;
 }
 li{
-    display: flex;
-    width: 100%;
-    padding: 3vw;
-}
-.text {
-    padding-top: 1vw;
-    font-size: 4vw;
-    font-weight: 550;
-    color: #333333;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 4px;
+    padding: 10px 20px;
+    margin-bottom: 20px;
+    width:700px;
+    font-size: 20px;
 }
 </style>
