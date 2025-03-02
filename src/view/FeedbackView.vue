@@ -5,7 +5,7 @@
         <div class="wrapper">
             <div class="container">
                 <div class="body">
-                    <h2>用户反馈</h2>
+                    <h2>我的反馈</h2>
                     <div class="content">
                         <textarea
                             v-model="feedback.feedbackExplain"
@@ -47,10 +47,6 @@ onBeforeMount(()=>{
 });
 
 function submit () {
-    if (!user.value.userId) {
-        alert("用户未登录或用户ID为空");
-        return;
-    }
     axiosInstance.post('/feedback/saveFeedback',{
         feedbackExplain : feedback.value.feedbackExplain,
         userId : user.value.userId,
@@ -143,6 +139,7 @@ button:hover {
     margin-top: 25px;
     display: flex;
     flex-direction: column;
+    overflow-y: auto;
 }
 .feedback-textarea{
     width: 100%;
