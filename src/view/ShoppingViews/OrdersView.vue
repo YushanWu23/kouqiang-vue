@@ -66,7 +66,7 @@ function goPayment(){
                 router.push(
                     {path:'/payment',
                         query: {
-                        orderId:response.data
+                        orderId:response.data.orderId
                     }
                 });
             }
