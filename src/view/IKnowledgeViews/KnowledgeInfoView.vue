@@ -167,8 +167,8 @@ function back(){
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
     width: 1300px;
     margin-right: 20px;
-    height:640px;
-    margin-top: 40px;
+    height:680px;
+    margin-top: 80px;
 }
 
 .body {
@@ -181,10 +181,15 @@ function back(){
 }
 
 h2 {
+    width:900px;
     margin-bottom: 10px;
     font-size: 30px;
-    margin-left: 370px;
     margin-top: 10px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    word-wrap: break-word; /* 允许在单词内换行 */
+    white-space: pre-line; /* 保留换行符并正常换行 */
 }
 .buttons {
     display: flex;
@@ -210,6 +215,9 @@ h2 {
     display: flex;
     flex-direction: column;
     padding: 10px 20px;
+    word-wrap: break-word; /* 允许在单词内换行 */
+    white-space: pre-line; /* 保留换行符并正常换行 */
+    overflow: auto;/*滑动*/
 }
 .bookmark{
     display: flex;

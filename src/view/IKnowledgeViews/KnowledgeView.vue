@@ -114,8 +114,8 @@ function searchKnowledges(){
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
     width: 1300px;
     margin-right: 20px;
-    height:640px;
-    margin-top: 40px;
+    height:680px;
+    margin-top: 80px;
 }
 
 .body {
@@ -137,6 +137,10 @@ h2 {
     margin-top: 20px;
     margin-bottom: 20px;
     overflow-y: auto;
+}
+.text {
+    word-wrap: break-word; /* 允许在单词内换行 */
+    white-space: pre-line; /* 保留换行符并正常换行 */
 }
 li{
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);

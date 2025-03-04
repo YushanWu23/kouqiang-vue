@@ -119,8 +119,8 @@ function save() {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
     width: 1100px;
     margin-left: 190px;
-    height:640px;
-    margin-top: 40px;
+    height:680px;
+    margin-top: 80px;
 }
 
 .body {
