@@ -6,10 +6,19 @@
             <div class="container">
                 <div class="body">
                     <h2>我的反馈</h2>
+                    <!-- 图片上传组件 -->
+                    <input type="file" ref="fileInput" multiple @change="handleFileUpload" accept="image/*" class="file-input"/>
+                    <!-- 显示上传的图片 -->
+                    <div v-if="imageUrls.length > 0" class="image-preview">
+                        <div v-for="(url, index) in imageUrls" :key="index" class="image-item">
+                            <a :href="url" target="_blank">
+                                <img :src="url" alt="Uploaded Image" class="preview-image" />
+                            </a>
+                            <button @click="removeFile(index)">删除</button>
+                        </div>
+                    </div>
                     <div class="content">
-                        <!-- 图片上传组件 -->
-                        <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" class="file-input"/>
-                        <textarea
+                       <textarea
                             v-model="feedback.feedbackExplain"
                             placeholder="请输入反馈"
                             class="feedback-textarea"
@@ -30,15 +39,15 @@ import {axiosInstance, useStore} from "@/main";
 import { storeToRefs } from "pinia";
 import TopComponent from "@/components/basic/TopComponent.vue";
 import SideBar from "@/components/basic/SideBar.vue";
-import logger from "@fortawesome/vue-fontawesome/src/logger";
 const router = useRouter();
 const store = useStore();
 const { user } = storeToRefs(store);
 const feedback = ref({
     feedbackExplain : '',
-    imageFile: null,
+    imageUrls : [],
 })
 const fileInput = ref(null); // 获取文件输入框的引用
+const imageUrls = ref([]);
 function isUser() {
     if (user.value.userId ===''){
         alert("先登陆")
@@ -51,26 +60,52 @@ onBeforeMount(()=>{
     isUser();
 });
 function handleFileUpload(event) {
-    feedback.value.imageFile = event.target.files[0]; // 获取上传的文件
+    const files = event.target.files;
+    if (files && files.length > 0) {
+        // 将新选择的文件追加到现有列表中
+        for (const file of files) {
+            feedback.value.imageUrls.push(file);
+        }
+        previewImages(); // 预览图片
+    }
 }
+function previewImages() {
+    imageUrls.value = []; // 清空之前的预览
+    Array.from(feedback.value.imageUrls).forEach(file => {
+        const url = URL.createObjectURL(file); // 生成临时 URL
+        imageUrls.value.push(url);
+    });
+}
+function removeFile(index) {
+    feedback.value.imageUrls.splice(index, 1); // 删除指定索引的文件
+    previewImages(); // 重新生成预览
+}
+
 function submit () {
-    axiosInstance.post('/feedback/saveFeedback',{
-        feedbackExplain : feedback.value.feedbackExplain,
-        file : feedback.value.imageFile,
-        userId : user.value.userId,
-    },{
+    const formData = new FormData();
+    formData.append("feedbackExplain", feedback.value.feedbackExplain);
+
+
+    // 添加多张图片到 FormData
+    if (feedback.value.imageUrls  && feedback.value.imageUrls .length > 0) {
+        feedback.value.imageUrls .forEach((file, index) => {
+            formData.append("files", file); // 注意字段名称与后端一致
+        });
+    }
+    formData.append("userId", user.value.userId);
+    axiosInstance.post('/feedback/saveFeedback',formData,{
         headers : {
             "Content-Type" : "multipart/form-data"// 使用 multipart/form-data 格式上传文件
         }
     }).then(response => {
-        console.log(feedback.value.imageFile);
         alert("提交成功");
         feedback.value.feedbackExplain = "";
-        feedback.value.imageFile = null;
+        feedback.value.imageUrls  = [];
         // 清空文件输入框的值
         if (fileInput.value) {
             fileInput.value.value = ""; // 重置文件输入框
         }
+        imageUrls.value = [];
         router.push({
             path : "/feedback"
         })
@@ -80,6 +115,17 @@ function submit () {
 }
 </script>
 <style scoped>
+.image-item{
+    display: flex;
+    width:110px;
+    margin-right: 25px;
+}
+.image-item a{
+    height: 89px;
+}
+.image-item button{
+    padding-left: 5px;
+}
 .background {
     background-color: #e9f2ff;
     height: 100%;
@@ -153,7 +199,7 @@ button:hover {
     height: 300px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
-    margin-top: 25px;
+    margin-top: 15px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
@@ -169,5 +215,9 @@ button:hover {
     box-sizing: border-box; /* 确保 padding 不影响整体大小 */
     vertical-align: top; /* 内容从顶部开始对齐 */
     background-color: #fff;
+}
+.image-preview{
+
+    display: flex;
 }
 </style>
