@@ -7,6 +7,8 @@
                 <div class="body">
                     <h2>我的反馈</h2>
                     <div class="content">
+                        <!-- 图片上传组件 -->
+                        <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" class="file-input"/>
                         <textarea
                             v-model="feedback.feedbackExplain"
                             placeholder="请输入反馈"
@@ -28,12 +30,15 @@ import {axiosInstance, useStore} from "@/main";
 import { storeToRefs } from "pinia";
 import TopComponent from "@/components/basic/TopComponent.vue";
 import SideBar from "@/components/basic/SideBar.vue";
+import logger from "@fortawesome/vue-fontawesome/src/logger";
 const router = useRouter();
 const store = useStore();
 const { user } = storeToRefs(store);
 const feedback = ref({
     feedbackExplain : '',
+    imageFile: null,
 })
+const fileInput = ref(null); // 获取文件输入框的引用
 function isUser() {
     if (user.value.userId ===''){
         alert("先登陆")
@@ -45,18 +50,27 @@ function isUser() {
 onBeforeMount(()=>{
     isUser();
 });
-
+function handleFileUpload(event) {
+    feedback.value.imageFile = event.target.files[0]; // 获取上传的文件
+}
 function submit () {
     axiosInstance.post('/feedback/saveFeedback',{
         feedbackExplain : feedback.value.feedbackExplain,
+        file : feedback.value.imageFile,
         userId : user.value.userId,
     },{
         headers : {
-            "Content-Type" : "application/x-www-form-urlencoded"
+            "Content-Type" : "multipart/form-data"// 使用 multipart/form-data 格式上传文件
         }
     }).then(response => {
+        console.log(feedback.value.imageFile);
         alert("提交成功");
         feedback.value.feedbackExplain = "";
+        feedback.value.imageFile = null;
+        // 清空文件输入框的值
+        if (fileInput.value) {
+            fileInput.value.value = ""; // 重置文件输入框
+        }
         router.push({
             path : "/feedback"
         })
@@ -109,6 +123,9 @@ h2 {
     font-size: 30px;
     margin-left: 250px;
     margin-top: 10px;
+}
+.file-input {
+    margin-bottom: 10px;
 }
 .button2{
     display: flex;
