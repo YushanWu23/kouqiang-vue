@@ -23,7 +23,9 @@
                             <!-- 显示图片 -->
                             <div class="image-preview" v-if="note.imageUrls && note.imageUrls.length > 0">
                                 <div v-for="(url, imgIndex) in note.imageUrls" :key="imgIndex" class="image-item">
-                                    <img :src="getImageUrl(url)" alt="Note Image" class="preview-image" />
+                                    <a :href="getImageUrl(url)" target="_blank">
+                                        <img :src="getImageUrl(url)" alt="Note Image" class="preview-image" />
+                                    </a>
                                 </div>
                             </div>
                         </li>
