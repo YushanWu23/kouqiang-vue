@@ -13,17 +13,19 @@
                         <li v-for="(note, index) in notes" :key="note.noteId">
                             <div class="buttons">
                                 <div class="part">
-                                    <button v-if="!note.isEditing" @click="editNote(index)">修改</button>
-                                    <button v-else @click="saveNote(note)">提交</button>
+                                    <button @click="editNote(note.noteId)">修改</button>
                                 </div>
                                 <div class="part">
                                     <button @click="deleteNote(note.noteId)">删除</button>
                                 </div>
                             </div>
-                            <div class="text" v-if="!note.isEditing" v-html="note.noteExplain">
-
+                            <div class="text" v-html="note.noteExplain"></div>
+                            <!-- 显示图片 -->
+                            <div class="image-preview" v-if="note.imageUrls && note.imageUrls.length > 0">
+                                <div v-for="(url, imgIndex) in note.imageUrls" :key="imgIndex" class="image-item">
+                                    <img :src="getImageUrl(url)" alt="Note Image" class="preview-image" />
+                                </div>
                             </div>
-                            <textarea v-else v-model="note.noteExplain" class="edit-input"></textarea>
                         </li>
                     </ul>
                 </div>
@@ -65,23 +67,16 @@ function fetchNotes(){
 onBeforeMount(()=>{
     fetchNotes();
 });
-function editNote(index){
-    notes.value[index].isEditing = true;
+function getImageUrl(imagePath) {
+    return `http://localhost:8082/kouqiang-user${imagePath}`;
 }
-function saveNote(note){
-    axiosInstance.post('/note/updateNote',{
-        noteId: note.noteId,
-        noteExplain : note.noteExplain,
-    }, {
-        headers: {
-            "Content-Type": "application/x-www-form-urlencoded"
-        }
-    }).then(response =>{
-        console.log(response.data);
-        note.isEditing = false;
-    }).catch(error =>{
-        console.error(error)
-    });
+function editNote(noteId){
+    router.push(
+        {path:'/updateNote',
+            query: {
+                noteId: noteId
+            }
+        });
 }
 function deleteNote(noteId){
     axiosInstance.get('/note/removeNote',{
@@ -102,6 +97,15 @@ function addTheNote() {
 }
 </script>
 <style scoped>
+.image-preview{
+    display: flex;
+}
+.image-item{
+    display: flex;
+    width:89px;
+    margin-right: 25px;
+    height: 89px;
+}
 .background {
     background-color: #e9f2ff;
     height: 100%;
