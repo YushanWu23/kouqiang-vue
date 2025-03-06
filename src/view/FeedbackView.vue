@@ -115,6 +115,9 @@ function submit () {
 }
 </script>
 <style scoped>
+.image-preview{
+    display: flex;
+}
 .image-item{
     display: flex;
     width:110px;
@@ -215,9 +218,5 @@ button:hover {
     box-sizing: border-box; /* 确保 padding 不影响整体大小 */
     vertical-align: top; /* 内容从顶部开始对齐 */
     background-color: #fff;
-}
-.image-preview{
-
-    display: flex;
 }
 </style>
