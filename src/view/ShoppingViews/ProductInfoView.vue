@@ -81,9 +81,11 @@ function fetchProduct(){
 }
 
 function minus(product){
-    updateCart(product,-1)
     if (product.quantity ===1) {
         deleteCart(product);
+    }
+    if(product.quantity >1){
+        updateCart(product,-1)
     }
     /*product.quantity-=1;*/
 }
@@ -163,6 +165,10 @@ function goOrder(){
         path : "/orders"
     })
 }
+function getImageUrl(productImg){
+    console.log(productImg)
+    return `http://localhost:8082/kouqiang-user${productImg}`;
+}
 </script>
 
 <template>
@@ -172,12 +178,9 @@ function goOrder(){
             <div class="container">
                 <div class="body">
                     <h2>购物平台</h2>
-<!--                    <div class="search">
-                        <input type="text" v-model="searchKeyword" placeholder="输入关键词搜索" @input="searchProducts" />
-                    </div>-->
                     <ul class="productList">
                         <li v-for="product in products" :key="product.productId">
-                            <img :src="product.productImg">
+                            <img :src="getImageUrl(product.productImg)" alt="Product Image">
                             <div class="explain">
                                 <div class="text1">
                                     {{product.productName}}
@@ -294,8 +297,8 @@ h2 {
 .productList li img{
     display: flex;
     align-items: center;
-    width:160px;
-    height:140px;
+    width:130px;
+    height:130px;
     margin-right: 10px;
 }
 .wrapper .productList li .explain{
