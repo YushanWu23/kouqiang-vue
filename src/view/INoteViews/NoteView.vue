@@ -21,7 +21,7 @@
                                 </div>
                             </div>
                             <div class="text" v-if="!note.isEditing" v-html="note.noteExplain">
-                                {{note.noteExplain}}
+
                             </div>
                             <textarea v-else v-model="note.noteExplain" class="edit-input"></textarea>
                         </li>
@@ -90,7 +90,9 @@ function deleteNote(noteId){
             userId : user.value.userId,
         }
     }).then(response => {
+        notes.value =[];
         router.push({ path: "/note" });
+        fetchNotes()
     }).catch(error => {
         console.error(error);
     });
@@ -125,8 +127,8 @@ function addTheNote() {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 阴影效果 */
     width: 1100px;
     margin-left: 190px;
-    height:640px;
-    margin-top: 40px;
+    height:680px;
+    margin-top: 80px;
 }
 
 .body {

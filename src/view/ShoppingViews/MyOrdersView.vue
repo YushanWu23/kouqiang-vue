@@ -64,7 +64,7 @@ function goPayment(orderId){
                             <li v-for="order in orders" v-show="!order.orderState">
                                 <div class="content">
                                     <div class="left" @click="showInfo(order)">
-                                        {{order.orderDate}}<!--改为时间-->
+                                        {{order.orderDate}}&nbsp;<!--改为时间-->
                                         <i class="fa-solid fa-caret-down"></i>
                                     </div>
                                     <div class="right">
@@ -90,6 +90,14 @@ function goPayment(orderId){
                                             ¥{{item.product.productPrice}}
                                         </div>
                                     </li>
+                                    <div class="deliveryPrice">
+                                        <div class="left">
+                                            配送费
+                                        </div>
+                                        <div class="right">
+                                            ¥3
+                                        </div>
+                                    </div>
                                 </ul>
                             </li>
                         </ul>
@@ -102,7 +110,7 @@ function goPayment(orderId){
                             <li v-for="order in orders" v-show="order.orderState">
                                 <div class="content">
                                     <div class="left" @click="showInfo(order)">
-                                        {{order.orderDate}}<!--改为时间-->
+                                        {{order.orderDate}}&nbsp;<!--改为时间-->
                                         <i class="fa-solid fa-caret-down"></i>
                                     </div>
                                     <div class="right">
@@ -123,6 +131,14 @@ function goPayment(orderId){
                                             ¥{{item.product.productPrice}}
                                         </div>
                                     </li>
+                                    <div class="deliveryPrice">
+                                        <div class="left">
+                                            配送费
+                                        </div>
+                                        <div class="right">
+                                            ¥3
+                                        </div>
+                                    </div>
                                 </ul>
                             </li>
                         </ul>
@@ -169,6 +185,7 @@ function goPayment(orderId){
     flex-direction: column;
     justify-items: center;
     margin-left: 150px;
+    overflow-y: auto;
 }
 
 h2 {
@@ -183,6 +200,7 @@ h2 {
 .body1 .text1{
      font-size:1.2vw;
      color: #555555;
+    padding-bottom: 10px;
 }
 .body1 .nonePayList{
     width: 100%;
@@ -219,7 +237,7 @@ h2 {
     margin-top: 1vw;
 }
 .body1 .nonePayList li .orderList li{
-    font-size: 1vw;
+    font-size: 0.9vw;
     padding-bottom: 0.5vw;
     display: flex;
     justify-content: space-between;
@@ -238,7 +256,7 @@ h2 {
     justify-content: flex-end;
 }
 .body2{
-    margin-top: 8vw;
+    margin-top: 6vw;
     margin-bottom: 3vw;
     margin-right: 80px;
 }
@@ -271,7 +289,7 @@ h2 {
     margin-top: 1vw;
 }
 .body2 .alreadyPayList li .orderList li{
-    font-size: 1vw;
+    font-size: 0.9vw;
     padding-bottom: 0.5vw;
     display: flex;
     justify-content: space-between;
@@ -289,5 +307,15 @@ h2 {
     display: flex;
     justify-content: flex-end;
 }
-
+.deliveryPrice{
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.9vw;
+    color: #555555;
+    padding-left: 20px;
+}
+.deliveryPrice .right{
+    display: flex;
+    justify-content: flex-end;
+}
 </style>
