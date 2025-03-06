@@ -10,20 +10,27 @@
                             <button @click="back">返回</button>
                         </div>
                         <div class="bookmark">
-                            <dic class="bookText" v-show="isBookmarked">
+                            <div class="bookText" v-show="isBookmarked">
                                 <i class="fa-solid fa-star"></i>
                                 已收藏
-                            </dic>
-                            <dic class="bookText" v-show="!isBookmarked">
+                            </div>
+                            <div class="bookText" v-show="!isBookmarked">
                                 <i class="fa-regular fa-star"></i>
                                 未收藏
-                            </dic>
+                            </div>
                             <i v-if="isBookmarked" @click="unbookmark"></i>
                             <i v-else @click="bookmark"></i>
                             <button @click="toggleBookmark">{{ isBookmarked ? '取消收藏' : '加入收藏夹' }}</button>
                         </div>
                     </div>
                     <div class="content">
+                        <div class="image-preview" v-if="knowledge.imageUrls && knowledge.imageUrls.length > 0">
+                            <div v-for="(url, imgIndex) in knowledge.imageUrls" :key="imgIndex" class="image-item">
+                                <a :href="getImageUrl(url)" target="_blank">
+                                    <img :src="getImageUrl(url)" alt="Note Image" class="preview-image" />
+                                </a>
+                            </div>
+                        </div>
                         {{knowledge.knowledgeExplain}}
                     </div>
                 </div>
@@ -52,6 +59,9 @@ function isUser() {
             path:"/login"
         })
     }
+}
+function getImageUrl(imagePath) {
+    return `http://localhost:8082/kouqiang-user${imagePath}`;
 }
 function fetchKnowledge(knowledgeId){
     isUser();
@@ -141,6 +151,15 @@ function back(){
 
 </script>
 <style scoped>
+.image-preview{
+    display: flex;
+}
+.image-item{
+    display: flex;
+    width:89px;
+    margin-right: 25px;
+    height: 89px;
+}
 .background {
     background-color: #e9f2ff;
     height: 100%;
