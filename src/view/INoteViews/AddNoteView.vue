@@ -5,9 +5,20 @@
         <div class="wrapper">
             <div class="container">
                 <div class="body">
-                    <h2>我的记录</h2>
+                    <h2>添加记录</h2>
                     <div class="back">
                         <button @click="goBack">返回</button>
+                    </div>
+                    <!-- 图片上传组件 -->
+                    <input type="file" ref="fileInput" multiple @change="handleFileUpload" accept="image/*" class="file-input"/>
+                    <!-- 显示上传的图片 -->
+                    <div v-if="imageUrls.length > 0" class="image-preview">
+                        <div v-for="(url, index) in imageUrls" :key="index" class="image-item">
+                            <a :href="url" target="_blank">
+                                <img :src="url" alt="Uploaded Image" class="preview-image" />
+                            </a>
+                            <button @click="removeFile(index)">删除</button>
+                        </div>
                     </div>
                     <div class="content">
                         <textarea
@@ -37,7 +48,10 @@ const store = useStore();
 const { user } = storeToRefs(store);
 const note = ref({
     noteExplain : '',
+    imageUrls : [],
 });
+const fileInput = ref(null); // 获取文件输入框的引用
+const imageUrls = ref([]);
 function isUser() {
     if (user.value.userId ===''){
         alert("先登陆")
@@ -50,20 +64,52 @@ function isUser() {
 onBeforeMount(()=>{
     isUser();
 });
+function handleFileUpload(event) {
+    const files = event.target.files;
+    if (files && files.length > 0) {
+        // 将新选择的文件追加到现有列表中
+        for (const file of files) {
+            note.value.imageUrls.push(file);
+        }
+        previewImages(); // 预览图片
+    }
+}
+function previewImages() {
+    imageUrls.value = []; // 清空之前的预览
+    Array.from(note.value.imageUrls).forEach(file => {
+        const url = URL.createObjectURL(file); // 生成临时 URL
+        imageUrls.value.push(url);
+    });
+}
+function removeFile(index) {
+    note.value.imageUrls.splice(index, 1); // 删除指定索引的文件
+    previewImages(); // 重新生成预览
+}
 function goBack(){
     router.go(-1)
 }
 function submit () {
-    axiosInstance.post('/note/saveNote',{
-        noteExplain : note.value.noteExplain,
-        userId : user.value.userId,
-    },{
+    const formData = new FormData();
+    formData.append("noteExplain", note.value.noteExplain);
+    if (note.value.imageUrls  && note.value.imageUrls .length > 0) {
+        note.value.imageUrls .forEach((file, index) => {
+            formData.append("files", file); // 注意字段名称与后端一致
+        });
+    }
+    formData.append("userId", user.value.userId);
+    axiosInstance.post('/note/saveNote',formData,{
         headers : {
-            "Content-Type" : "application/x-www-form-urlencoded"
+            "Content-Type" : "multipart/form-data"
         }
     }).then(response => {
         alert("提交成功");
         note.value.noteExplain = "";
+        note.value.imageUrls  = [];
+        // 清空文件输入框的值
+        if (fileInput.value) {
+            fileInput.value.value = "";
+        }
+        imageUrls.value = [];
         router.push({
             path : "/note"
         })
@@ -73,6 +119,20 @@ function submit () {
 }
 </script>
 <style scoped>
+.image-preview{
+    display: flex;
+}
+.image-item{
+    display: flex;
+    width:110px;
+    margin-right: 25px;
+}
+.image-item a{
+    height: 89px;
+}
+.image-item button{
+    padding-left: 5px;
+}
 .background {
     background-color: #e9f2ff;
     height: 100%;
@@ -118,7 +178,7 @@ h2 {
     margin-top: 10px;
 }
 
-button {
+.back button {
     padding: 5px 10px;
     background-color: #007bff;
     color: white;
@@ -126,6 +186,7 @@ button {
     border-radius: 4px; /* 按钮圆角 */
     cursor: pointer; /* 鼠标悬停时显示手型 */
     font-size: 14px;
+    margin-bottom: 5px;
 }
 
 li{
@@ -153,7 +214,7 @@ li{
     height: 300px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     border-radius: 4px;
-    margin-top: 25px;
+    margin-top: 5px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
