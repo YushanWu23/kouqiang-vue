@@ -25,6 +25,16 @@ export const useStore = defineStore('main',{
                 contactTel : '',
                 address:'',
             },
+            doctor : {
+                doctorId : '',
+                password : '',
+                doctorName : '',
+                doctorSex : 1,
+            },
+            admin : {
+                adminId : '',
+                password : '',
+            },
             isAuth : false,
         }
     }
