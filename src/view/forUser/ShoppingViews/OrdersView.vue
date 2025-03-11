@@ -16,7 +16,15 @@ function isUser() {
         })
     }
 }
-
+function getImageUrl(productImg){
+    console.log(productImg)
+    return `http://localhost:8082/kouqiang-user${productImg}`;
+}
+function back(){
+    router.push({
+        path:'/productInfo',
+    });
+}
 onMounted(() => {
         getCart();
 });
@@ -90,6 +98,9 @@ const totalPrice = computed(() => {
             <div class="container">
                 <div class="body">
                     <h2>确认订单</h2>
+                    <div class="back">
+                        <button @click="back">返回</button>
+                    </div>
                     <div class="noneDeliveryInfo" @click="goUserAddress" v-show="defaultAddressInfo.daId===-1">
                         请选择收货信息
                     </div>
@@ -118,7 +129,7 @@ const totalPrice = computed(() => {
                     <ul class="orderList">
                         <li v-for="cart in carts">
                             <div class="left">
-                                <img :src="cart.product.productImg">
+                                <img :src="getImageUrl(cart.product.productImg)" alt="cart Image">
                                 <div class="leftText">
                                     {{cart.product.productName}}
                                 </div>
@@ -197,6 +208,15 @@ h2 {
     margin-left: 450px;
     margin-top: 10px;
 }
+.back button {
+    padding: 5px 10px;
+    background-color: #007bff;
+    color: white;
+    border: none; /* 按钮无边框 */
+    border-radius: 4px; /* 按钮圆角 */
+    cursor: pointer; /* 鼠标悬停时显示手型 */
+    font-size: 14px;
+}
 .wrapper .noneDeliveryInfo{
     width: 100%;
     height: 5vw;
@@ -263,12 +283,15 @@ h2 {
     padding-left: 0.5vw;
     font-size: 1.1vw;
     color: #666666;
+    display: flex;
+    align-items: center;
 }
 .wrapper .orderList li .right{
     display: flex;
     justify-content: flex-end;
     font-size: 1.1vw;
     color: #666666;
+    align-items: center;
 }
 .wrapper .deliveryPrice{
     display: flex;

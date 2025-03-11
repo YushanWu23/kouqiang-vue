@@ -5,28 +5,28 @@
         <div class="wrapper">
             <div class="container">
                 <div class="body">
-                    <h2>个人信息</h2>
-                    <div class="button1">
-                        <button @click="editInfo">修改信息</button>
-                    </div>
+                    <h2>修改信息</h2>
                     <div class="body2">
                         <div class="head">
-                            <div class="headsex" v-show="user.userSex===1">
-                                <img src="../../assets/img-new/男用户.png">
-                            </div>
-                            <div class="headsex" v-show="user.userSex===0">
-                                <img src="../../assets/img-new/女用户.png">
+                            <div class="headsex">
+                                <img src="../../../assets/img-new/用户无性别.png">
                             </div>
                         </div>
                         <div class="info">
                             <div class="text">邮&nbsp;箱&nbsp;号:&nbsp;&nbsp;{{ user.userId }}</div>
-                            <div class="text">用&nbsp;户&nbsp;名:&nbsp;&nbsp;{{ user.userName }}</div>
-                            <div class="text">性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别:&nbsp;&nbsp;{{ getSexText(user.userSex) }}</div>
+                            <div class="text">
+                                用&nbsp;户&nbsp;名:&nbsp;&nbsp;
+                                <input type="text" v-model="user.userName" placeholder="用户名">
+                            </div>
+                            <div class="text">
+                                性&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;别:&nbsp;&nbsp;
+                                <input type="radio" v-model="user.userSex" value="1">&nbsp;&nbsp;男
+                                &nbsp;&nbsp;<input type="radio" v-model="user.userSex" value="0">&nbsp;&nbsp;女
+                            </div>
                         </div>
                     </div>
-
                     <div class="button2">
-                        <button @click="logout">退出登陆</button>
+                        <button @click="save">保存</button>
                     </div>
                 </div>
             </div>
@@ -69,17 +69,28 @@ onBeforeMount(()=>{
 function getSexText(contactSex){
     return contactSex === 1 ? '男' : '女';
 }
-function editInfo() {
-    /*console.log("修改信息");*/
-    router.push({
-        path : "/updateUserInfo"
-    })
-}
 
-function logout() {
-    // 处理退出登录的逻辑
-    sessionStorage.removeItem("token"); // 示例：移除 token
-    router.push({ path: "/login" });
+function save() {
+    if (!user.value.userId) {
+        alert("用户未登录或用户ID为空");
+        return;
+    }
+    axiosInstance.post('/user/updateUserInfo',{
+        userId : user.value.userId,
+        userName : user.value.userName,
+        userSex : user.value.userSex,
+    },{
+        headers : {
+            "Content-Type" : "application/x-www-form-urlencoded"
+        }
+    }).then(response => {
+        alert("保存成功");
+        router.push({
+            path : "/userInfo"
+        })
+    }).catch(error => {
+        console.error(error);
+    });
 }
 </script>
 <style scoped>
@@ -129,6 +140,7 @@ h2 {
 }
 .body2{
     display: flex;
+    margin-top: 30px;
 }
 .head{
     margin-top: 10px;
@@ -143,22 +155,9 @@ h2 {
 .info .text{
     font-size: 16px;
     margin-bottom: 20px;
-}
-
-.button1 {
     display: flex;
-    margin-left: 450px;
 }
 
-.button1 button {
-    padding: 5px 10px;
-    background-color: #007bff;
-    color: white;
-    border: none; /* 按钮无边框 */
-    border-radius: 4px; /* 按钮圆角 */
-    cursor: pointer; /* 鼠标悬停时显示手型 */
-    font-size: 14px;
-}
 .button2{
     display: flex;
     justify-items: center;

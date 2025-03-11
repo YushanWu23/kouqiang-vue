@@ -11,7 +11,10 @@
         <div class="side">
             <i class="fa-solid fa-clipboard"></i>
             <div class="option" @click="goTo('records')">&nbsp;用户记录</div>
-
+        </div>
+        <div class="side">
+            <i class="fa-solid fa-clipboard"></i>
+            <div class="option" @click="goTo('bookmark')">&nbsp;科普收藏</div>
         </div>
         <div class="side">
             <i class="fa-solid fa-comment"></i>
@@ -33,10 +36,13 @@ function goTo(option) {
             router.push({ path: '/myOrders' });
             break;
         case 'records':
-            router.push({ path: '/userRecords' });
+            router.push({ path: '/note' });
+            break;
+        case 'bookmark':
+            router.push({ path: '/bookmark' });
             break;
         case 'feedback':
-            router.push({ path: '/userFeedback' });
+            router.push({ path: '/feedback' });
             break;
         default:
             break;
@@ -51,7 +57,7 @@ function goTo(option) {
     background-color: white;
     border-right: solid 1px #ccc;
     top: 100px;
-    height: 80%;
+    height: 85%;
     display: flex;
     flex-direction: column;
     position: fixed;

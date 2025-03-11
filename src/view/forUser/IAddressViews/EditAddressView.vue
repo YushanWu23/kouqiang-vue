@@ -7,7 +7,7 @@
                     <h2>编辑送货地址</h2>
                     <div class="info">
                         <div class="headsex">
-                            <img src="../../assets/img-new/用户无性别.png">
+                            <img src="../../../assets/img-new/用户无性别.png">
                         </div>
                         <div class="content">
                             <div class="name">

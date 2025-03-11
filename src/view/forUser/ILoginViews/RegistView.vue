@@ -1,6 +1,6 @@
 <template>
     <div class="background">
-        <img src="../../assets/img-new/背景图3.png">
+        <img src="../../../assets/img-new/背景图3.png">
     </div>
     <div class="wrapper">
         <div class="login-container">

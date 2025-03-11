@@ -12,11 +12,11 @@
     </div>
     <div class="group">
       <i class="group-hover:cursor-pointer fa-regular fa-compass"></i>
-      <button>购物</button>
+      <button @click="goOrders">购物</button>
     </div>
     <div class="group">
       <i class="group-hover:cursor-pointer fa-regular fa-file-lines"></i>
-      <button @click="goOrders">科普</button>
+      <button @click="goKnowledge">科普</button>
     </div>
     <div class="group">
         <i class="group-hover:cursor-pointer fa-regular fa-user"></i>
@@ -37,9 +37,15 @@ function goIndex(){
 }
 function goOrders(){
     router.push({
-        path : "/myOrders",
+        path : "/productInfo",
     })
     console.log("进入购物页面")
+}
+function goKnowledge(){
+    router.push({
+        path : "/knowledge",
+    })
+    console.log("进入科普页面")
 }
 function goUserInfo(){
     router.push({
