@@ -6,7 +6,7 @@
         <div class="login-container">
             <div class ="head">
                 <div class = "headText">
-                    忘记密码
+                    忘记密码(用户端)
                 </div>
             </div>
             <div class="emailNum">
@@ -101,9 +101,7 @@ function passwordSave() {
     });
 }
 function login() {
-    router.push({
-        path : "/login"
-    })
+    router.go(-1)
 }
 function sendEmailCode(){
     if (!user.value.userId) {

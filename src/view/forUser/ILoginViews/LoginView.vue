@@ -4,6 +4,15 @@
     </div>
   <div class="wrapper">
       <div class="login-container">
+          <div class="change">
+              <div class="doc">
+                  <span>切换为</span>
+                  <button @click="doctorLogin">医生端</button>
+              </div>
+              <div class="admin">
+                  <button @click="adminLogin">管理员端</button>
+              </div>
+          </div>
           <div class ="head">
               <div class = "headText">
                   用户登陆
@@ -89,6 +98,16 @@ function regist() {
 function forgotPassword() {
     router.push({
         path : "/forgotPassword"
+    })
+}
+function doctorLogin() {
+    router.push({
+        path : "/docLogin"
+    })
+}
+function adminLogin() {
+    router.push({
+        path : "/adminLogin"
     })
 }
 </script>
@@ -212,6 +231,44 @@ function forgotPassword() {
 }
 
 .bottom-links .forgot-password button:hover {
+    text-decoration: underline; /* 鼠标悬停时下划线 */
+}
+.change {
+    display: flex;
+    align-items: center;
+    margin-left: 195px;
+}
+.change .doc,.admin {
+    display: flex; /* 使用 flex 布局 */
+    align-items: center; /* 垂直居中 */
+}
+
+.change .doc span {
+    margin-right: 3px;
+    font-size: 13px;
+    color: #666;
+}
+.change .doc button {
+    background-color: transparent; /* 透明背景 */
+    color: #007bff;
+    border: none; /* 无边框 */
+    cursor: pointer; /* 鼠标悬停时显示手型 */
+    padding-left: 3px;
+    font-size: 13px;
+}
+.change .doc button:hover {
+    text-decoration: underline; /* 鼠标悬停时下划线 */
+}
+.change .admin button {
+    background-color: transparent; /* 透明背景 */
+    color: #007bff;
+    border: none; /* 无边框 */
+    cursor: pointer; /* 鼠标悬停时显示手型 */
+    font-size: 13px;
+    margin-left: 5px;
+}
+
+.change .admin button:hover {
     text-decoration: underline; /* 鼠标悬停时下划线 */
 }
 </style>
