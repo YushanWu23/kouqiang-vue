@@ -63,7 +63,7 @@ function login() {
     }
     axiosInstance.post('/admin/login',{
         adminId : admin.value.adminId,
-        pwd: admin.value.password,
+        password: admin.value.password,
     },{
         headers : {
             "Content-Type" : "application/x-www-form-urlencoded"
