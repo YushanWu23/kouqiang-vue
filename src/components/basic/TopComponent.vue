@@ -89,8 +89,8 @@ function goUserInfo(){
     justify-content: center;
     align-items: center;
     font-size: 18px;
-    padding-right: 80px;
-    padding-left: 80px;
+    padding-right: 75px;
+    padding-left: 75px;
     border-right: solid 1px #ccc;
 }
 button{
