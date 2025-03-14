@@ -1,0 +1,118 @@
+<template>
+    <div class="background">
+        <div class="wrapper">
+            <div class="container">
+                <div class="body">
+                    <h2>我的排班</h2>
+                    <el-table :data="schedules" style="width: 100%" border>
+                        <el-table-column prop="scheduleId" label="ID" width="80"/>
+                        <el-table-column prop="doctor.doctorName" label="医生名" width="120"/>
+                        <el-table-column label="时间范围">
+                            <template #default="{row}">
+                                {{ formatDateTime(row.startTime) }} - {{ formatDateTime(row.endTime) }}
+                            </template>
+                        </el-table-column>
+                        <el-table-column prop="maxReservations" label="最大预约数" width="120"/>
+                        <el-table-column prop="currentReservations" label="当前预约数" width="120"/>
+                        <el-table-column prop="status" label="状态" width="120"/>
+                    </el-table>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
+
+<script setup>
+import { ref, onMounted } from "vue";
+import { ElMessage } from 'element-plus';
+import { axiosInstance } from "@/main";
+import { useStore } from "pinia";
+import { storeToRefs } from "pinia";
+
+const store = useStore();
+const { doctor } = storeToRefs(store);
+const schedules = ref([]);
+
+function formatDateTime(datetime) {
+    return new Date(datetime).toLocaleString();
+}
+function isDoctor() {
+    if (doctor.value.doctorId ===''){
+        alert("先登陆")
+        router.push({
+            path:"/docLogin"
+        })
+    }
+}
+async function fetchSchedules() {
+    isDoctor();
+    try {
+        const response = await axiosInstance.get('/schedule/getScheduleByDoctorId', {
+            params: {
+                doctorId: doctor.value.doctorId,
+                startDate: new Date().toISOString().split('T')[0],
+                endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]
+            }
+        });
+    } catch (error) {
+        ElMessage.error('获取排班数据失败');
+        console.error(error);
+    }
+}
+
+onMounted(() => {
+    fetchSchedules();
+});
+</script>
+
+<style scoped>
+.background {
+    background-color: #e9f2ff;
+    height: 100%;
+    width: 100%;
+    z-index: -1;
+    object-fit: cover;
+    position: fixed;
+    top: 0;
+    left: 0;
+}
+
+.wrapper {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100%;
+    overflow: auto;
+}
+
+.container {
+    display: flex;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    width: 1300px;
+    margin-right: 20px;
+    height: 680px;
+    margin-top: 80px;
+}
+
+.body {
+    padding: 20px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-items: center;
+    margin-left: 130px;
+}
+
+h2 {
+    margin-bottom: 20px;
+    font-size: 30px;
+    margin-left: 370px;
+    margin-top: 10px;
+}
+
+.el-table {
+    margin-top: 20px;
+}
+</style>
