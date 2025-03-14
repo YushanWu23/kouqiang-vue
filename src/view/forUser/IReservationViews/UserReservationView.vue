@@ -6,22 +6,23 @@
             <div class="container">
                 <div class="body">
                     <h2>我的预约</h2>
-                    <el-table :data="reservations" style="width: 86%" border>
+                    <el-table v-if="!loading" :data="reservations" style="width: 95%" border>
                         <el-table-column prop="reservationId" label="预约ID" width="100"/>
                         <el-table-column prop="doctor.doctorName" label="医生名" width="120"/>
                         <el-table-column label="时间范围" width="400">
                             <template #default="{row}">
-                                {{ formatDateTime(row.schedule.startTime) }} - {{ formatDateTime(row.schedule.endTime) }}
+                                {{ formatDateTime(row.schedule?.startTime) }} - {{ formatDateTime(row.schedule?.endTime) }}
                             </template>
                         </el-table-column>
-                        <el-table-column prop="status" label="状态" width="120">
+                        <el-table-column prop="status" label="状态" >
                             <template #default="{row}">
-                                <el-tag :type="row.status === 2 ? 'success' : 'primary'">
-                                    {{ row.status }}
+                                <el-tag :type="getStatusType(row.status)">
+                                    {{ getStatusText(row.status) }}
                                 </el-tag>
                             </template>
                         </el-table-column>
                     </el-table>
+                    <div v-else class="loading-indicator">加载中...</div>
                 </div>
             </div>
         </div>
@@ -41,13 +42,15 @@ const router = useRouter();
 const store = useStore();
 const { user } = storeToRefs(store);
 const reservations = ref([]);
-
+const loading = ref(false);//添加加载状态
 function formatDateTime(datetime) {
+    if (!datetime) return '无时间信息';
     return new Date(datetime).toLocaleString();
 }
 
 async function fetchReservations() {
     isUser();
+    loading.value = true; // 开始加载
     try {
         const response = await axiosInstance.get('/reservation/getReservationByUserId', {
             params: {
@@ -58,9 +61,12 @@ async function fetchReservations() {
         reservations.value = response.data.filter(reservation =>
             reservation.status === 1 || reservation.status === 2
         );
+        console.log(response.data);
     } catch (error) {
         ElMessage.error('获取预约信息失败');
         console.error(error);
+    }finally {
+        loading.value = false; // 结束加载
     }
 }
 
@@ -73,9 +79,31 @@ function isUser() {
         });
     }
 }
-onBeforeMount(() => {
+onMounted(() => {
     fetchReservations();
 });
+function getStatusText(status) {
+    switch (status) {
+        case 0:
+            return '未预约';
+        case 1:
+            return '已预约';
+        case 2:
+            return '已完成';
+        default:
+            return '未知状态';
+    }
+}
+function getStatusType(status) {
+    switch (status) {
+        case 1:
+            return 'primary';
+        case 2:
+            return 'success';
+        default:
+            return 'info';
+    }
+}
 </script>
 
 <style scoped>
