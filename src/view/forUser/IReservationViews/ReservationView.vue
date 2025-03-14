@@ -15,17 +15,27 @@
                         </el-table-column>
                         <el-table-column prop="maxReservations" label="最大预约数" width="120"/>
                         <el-table-column prop="currentReservations" label="当前预约数" width="120"/>
-                        <el-table-column prop="status" label="排班状态" width="120">
+                        <el-table-column label="排班状态" width="120">
                             <template #default="{row}">
-                                <el-tag :type="row.status === 'finished' ? 'success' : 'primary'">
-                                    {{ row.status }}
+                                <el-tag :type="{
+                                     '活跃': 'primary',
+                                     '已满': 'warning',
+                                     '结束': 'success',
+                                     '未知状态': 'danger'
+                                }[row.statusDisplay]">
+                                    {{ row.statusDisplay }}
                                 </el-tag>
                             </template>
                         </el-table-column>
-                        <el-table-column prop="reservationStatus" label="预约状态" width="120">
+                        <el-table-column label="预约状态" width="120">
                             <template #default="{row}">
-                                <el-tag :type="row.reservationStatus === '已预约' ? 'success' : 'info'">
-                                    {{ row.reservationStatus || '未预约' }}
+                                <el-tag :type="{
+                                    '未预约': 'info',
+                                    '已预约': 'success',
+                                     '已完成': 'success',
+                                     '未知状态': 'danger'
+                                }[row.reservationStatus]">
+                                    {{ row.reservationStatus }}
                                 </el-tag>
                             </template>
                         </el-table-column>
@@ -76,33 +86,92 @@ const router = useRouter();
 const store = useStore();
 const { user } = storeToRefs(store);
 const schedules = ref([]);
-
-// 格式化时间
+const reservations = ref([]);
 function formatDateTime(datetime) {
     return new Date(datetime).toLocaleString();
 }
-
-// 获取排班信息
+function fetchReservations(){
+    axiosInstance.get('/reservation/getReservationByUserId',{
+        params:{
+            userId : user.value.userId,
+        }
+    }).then(response => {
+        console.log(response.data);
+        reservations.value=response.data;
+    }).catch(error =>{
+        console.error(error)
+    });
+}
 async function fetchSchedules() {
     isUser();
     try {
         const response = await axiosInstance.get('/schedule/getAllSchedules');
-        // 过滤掉已完成的排班，并为每个排班添加预约状态
-        schedules.value = response.data
-            .filter(schedule => schedule.status !== 'finished')
-            .map(schedule => {
+        const allReservationsResponse = await axiosInstance.get('/reservation/getReservationByUserId', {
+            params: {
+                userId: user.value.userId
+            }
+        });
+
+        console.log("All Reservations:", allReservationsResponse.data); // 打印后端返回的预约数据
+
+        // 确保返回的是数组，即使为空
+        //const allReservations = Array.isArray(allReservationsResponse.data) ? allReservationsResponse.data : [];
+
+        schedules.value = await Promise.all(response.data
+            .filter(schedule => schedule.status !== 2) // 状态为2的排班表示已结束，不显示
+            .map(async schedule => {
+                // 转换排班状态
+                switch (schedule.status) {
+                    case 0:
+                        schedule.statusDisplay = '活跃';
+                        break;
+                    case 1:
+                        schedule.statusDisplay = '已满';
+                        break;
+                    case 2:
+                        schedule.statusDisplay = '结束';
+                        break;
+                    default:
+                        schedule.statusDisplay = '未知状态';
+                }
+
                 // 检查当前用户是否已预约该排班
-                const reservation = schedule.reservations?.find(res => res.user.userId === user.value.userId);
-                schedule.reservationStatus = reservation ? reservation.status : '未预约';
+                //const reservation = allReservations.find(res => res.schedule?.scheduleId === schedule.scheduleId);
+                const ReservationResponse = await axiosInstance.get('/reservation/getReservationByUserIdAndScheduleId', {
+                    params: {
+                        userId: user.value.userId,
+                        scheduleId: schedule.scheduleId,
+                    }
+                });
+                const reservation = ReservationResponse.data || {};                // 转换预约状态
+                if (reservation.status !== undefined) {
+                    switch (reservation.status) {
+                        case 0:
+                            schedule.reservationStatus = '未预约';
+                            break;
+                        case 1:
+                            schedule.reservationStatus = '已预约';
+                            break;
+                        case 2:
+                            schedule.reservationStatus = '已完成';
+                            break;
+                        default:
+                            schedule.reservationStatus = '未知状态';
+                    }
+                } else {
+                    schedule.reservationStatus = '未预约';
+                }
+
                 return schedule;
-            });
+            }));
+
+        console.log(response.data);
     } catch (error) {
         ElMessage.error('获取排班数据失败');
         console.error(error);
     }
 }
 
-// 检查用户是否登录
 function isUser() {
     if (user.value.userId === '') {
         alert("请先登录");
@@ -112,7 +181,6 @@ function isUser() {
     }
 }
 
-// 处理预约
 async function handleReserve(scheduleId, doctorId) {
     try {
         const response = await axiosInstance.post('/reservation/createReservation', {
@@ -127,10 +195,7 @@ async function handleReserve(scheduleId, doctorId) {
 
         if (response.data) {
             ElMessage.success('预约成功');
-            await router.push({
-                path: "/reservation"
-            })
-
+            await fetchSchedules(); // 刷新排班列表
         } else {
             ElMessage.error('预约失败');
         }
@@ -139,11 +204,16 @@ async function handleReserve(scheduleId, doctorId) {
     }
 }
 
-// 处理取消预约
 async function handleCancelReservation(scheduleId) {
     try {
+        const Reservation = await axiosInstance.get('/reservation/getReservationByUserIdAndScheduleId', {
+            params: {
+                userId: user.value.userId,
+                scheduleId: scheduleId,
+            }
+        });
         const response = await axiosInstance.post('/reservation/deleteReservation', {
-            scheduleId: scheduleId,
+            reservationId: Reservation.data.reservationId,
         }, {
             headers: {
                 "Content-Type": "application/x-www-form-urlencoded"
@@ -152,9 +222,7 @@ async function handleCancelReservation(scheduleId) {
 
         if (response.data) {
             ElMessage.success('取消预约成功');
-            await router.push({
-                path: "/reservation"
-            })
+            await fetchSchedules(); // 刷新排班列表
         } else {
             ElMessage.error('取消预约失败');
         }
