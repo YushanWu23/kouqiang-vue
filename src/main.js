@@ -5,7 +5,8 @@ import axios from "axios";
 import './assets/main.css'
 import BottomComponent from "@/components/basic/TopComponent.vue";
 import {createPinia, defineStore} from "pinia";
-
+import ElementPlus from 'element-plus';
+import 'element-plus/dist/index.css';
 export const axiosInstance = axios.create({
     baseURL: 'http://localhost:8082/kouqiang-user',
 })
@@ -45,6 +46,7 @@ export const useStore = defineStore('main',{
 createApp(App)
     .use(router)
     .use(createPinia())
+    .use(ElementPlus)
     .component("BottomComponent",BottomComponent)
     .mount('#app')
 
