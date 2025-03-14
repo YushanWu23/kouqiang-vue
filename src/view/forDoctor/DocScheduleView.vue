@@ -1,20 +1,21 @@
 <template>
+    <DocTopComponent/>
     <div class="background">
         <div class="wrapper">
             <div class="container">
                 <div class="body">
                     <h2>我的排班</h2>
-                    <el-table :data="schedules" style="width: 100%" border>
+                    <el-table :data="schedules" style="width: 90%" border>
                         <el-table-column prop="scheduleId" label="ID" width="80"/>
                         <el-table-column prop="doctor.doctorName" label="医生名" width="120"/>
-                        <el-table-column label="时间范围">
+                        <el-table-column label="时间范围" width="400">
                             <template #default="{row}">
                                 {{ formatDateTime(row.startTime) }} - {{ formatDateTime(row.endTime) }}
                             </template>
                         </el-table-column>
                         <el-table-column prop="maxReservations" label="最大预约数" width="120"/>
                         <el-table-column prop="currentReservations" label="当前预约数" width="120"/>
-                        <el-table-column prop="status" label="状态" width="120"/>
+                        <el-table-column prop="status" label="状态"/>
                     </el-table>
                 </div>
             </div>
@@ -23,12 +24,13 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from "vue";
-import { ElMessage } from 'element-plus';
-import { axiosInstance } from "@/main";
-import { useStore } from "pinia";
+import { ref } from "vue";
+import { useRouter } from "vue-router";
+import {axiosInstance, useStore} from "@/main";
 import { storeToRefs } from "pinia";
-
+import DocTopComponent from "@/components/basic/DocTopComponent.vue";
+import {ElMessage} from "element-plus";
+const router = useRouter();
 const store = useStore();
 const { doctor } = storeToRefs(store);
 const schedules = ref([]);
@@ -46,18 +48,18 @@ function isDoctor() {
 }
 async function fetchSchedules() {
     isDoctor();
-    try {
-        const response = await axiosInstance.get('/schedule/getScheduleByDoctorId', {
-            params: {
-                doctorId: doctor.value.doctorId,
-                startDate: new Date().toISOString().split('T')[0],
-                endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]
-            }
-        });
-    } catch (error) {
+    axiosInstance.get('/schedule/getScheduleByDoctorId',{
+        params:{
+            doctorId: doctor.value.doctorId,
+            startDate: new Date().toISOString().split('T')[0],
+            endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]
+        }
+    }).then(response => {
+        schedules.value = response.data;
+    }).catch(error => {
         ElMessage.error('获取排班数据失败');
         console.error(error);
-    }
+    });
 }
 
 onMounted(() => {
