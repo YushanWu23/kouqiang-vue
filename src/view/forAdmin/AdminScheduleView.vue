@@ -11,14 +11,15 @@
                     <el-table :data="schedules" style="width: 100%" border>
                         <el-table-column prop="scheduleId" label="ID" width="80"/>
                         <el-table-column prop="doctor.doctorId" label="医生ID"/>
+                        <el-table-column prop="doctor.doctorName" label="医生名" width="120"/>
                         <el-table-column label="时间范围">
                             <template #default="{row}">
                                 {{ formatDateTime(row.startTime) }} - {{ formatDateTime(row.endTime) }}
                             </template>
                         </el-table-column>
-                        <el-table-column prop="maxReservations" label="最大预约数"/>
-                        <el-table-column prop="currentReservations" label="当前预约数"/>
-                        <el-table-column prop="status" label="状态"/>
+                        <el-table-column prop="maxReservations" label="最大预约数" width="120"/>
+                        <el-table-column prop="currentReservations" label="当前预约数" width="120"/>
+                        <el-table-column prop="status" label="状态" width="120"/>
                         <el-table-column label="操作" width="180">
                             <template #default="{row}">
                                 <el-button size="small" @click="showEditDialog(row)">编辑</el-button>
@@ -152,6 +153,18 @@ function formatBackendTime(time) {
 }
 async function submitForm() {
     try {
+        if (!form.value.doctorId) {
+            alert('医生Id不能为空！');
+            return;
+        }
+        if (!form.value.startTime) {
+            alert('开始时间不能为空！');
+            return;
+        }
+        if (!form.value.endTime) {
+            alert('结束时间不能为空！');
+            return;
+        }
         if (form.value.startTime) {
             const date = new Date(form.value.startTime);
             const pad = n => n.toString().padStart(2, '0');
@@ -171,41 +184,52 @@ async function submitForm() {
 
         if (isEdit.value) {
             params.append('scheduleId', currentScheduleId.value);
-            await axiosInstance.post('/schedule/updateSchedule', params, {
+            const response = await axiosInstance.post('/schedule/updateSchedule', params, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
             });
+            if (!response.data) {
+                alert('医生ID不正确！');
+                return;
+            }
             ElMessage.success('更新成功');
         } else {
-            await axiosInstance.post('/schedule/createSchedule', params, {
+            const response = await axiosInstance.post('/schedule/createSchedule', params, {
                 headers: {
                     'Content-Type': 'application/x-www-form-urlencoded'
                 }
             });
+            if (!response.data) {
+                alert('医生ID不正确！');
+                return;
+            }
             ElMessage.success('创建成功');
         }
         dialogVisible.value = false;
         await fetchSchedule();
     } catch (error) {
-        ElMessage.error(error.response?.data?.message || '操作失败');
+        alert('操作失败: ' + (error.response?.data || '未知错误'));
     }
 }
 
 async function handleDelete(scheduleId) {
     try {
         await ElMessageBox.confirm('确认删除该排班？', '警告', { type: 'warning' });
-        await axiosInstance.post('/schedule/deleteSchedule',
-            { scheduleId },{
-                headers : {
-                    "Content-Type" : "application/x-www-form-urlencoded"
-                }
-            });
+        const response = await axiosInstance.post('/schedule/deleteSchedule', { scheduleId }, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            }
+        });
+        if (!response.data) {
+            alert('删除失败: ' + (response.response?.data || '未知错误'));
+            return;
+        }
         ElMessage.success('删除成功');
         await fetchSchedule();
     } catch (error) {
         if (error !== 'cancel') {
-            ElMessage.error('删除失败');
+            alert('删除失败: ' + (error.response?.data || '未知错误'));
         }
     }
 }
