@@ -5,7 +5,10 @@
             <div class="container">
                 <div class="body">
                     <h2>我的排班</h2>
-                    <el-table :data="schedules" style="width: 90%" border>
+                    <div class="button-container">
+                        <el-button type="primary" @click="viewAllSchedules">查看全部排班</el-button>
+                    </div>
+                    <el-table :data="filteredSchedules" style="width: 90%" border>
                         <el-table-column prop="scheduleId" label="ID" width="80"/>
                         <el-table-column prop="doctor.doctorName" label="医生名" width="120"/>
                         <el-table-column label="时间范围" width="400">
@@ -15,7 +18,11 @@
                         </el-table-column>
                         <el-table-column prop="maxReservations" label="最大预约数" width="120"/>
                         <el-table-column prop="currentReservations" label="当前预约数" width="120"/>
-                        <el-table-column prop="status" label="状态"/>
+                        <el-table-column prop="status" label="状态">
+                            <template #default="{row}">
+                                {{ formatStatus(row.status) }}
+                            </template>
+                        </el-table-column>
                     </el-table>
                 </div>
             </div>
@@ -24,7 +31,7 @@
 </template>
 
 <script setup>
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useRouter } from "vue-router";
 import {axiosInstance, useStore} from "@/main";
 import { storeToRefs } from "pinia";
@@ -38,6 +45,21 @@ const schedules = ref([]);
 function formatDateTime(datetime) {
     return new Date(datetime).toLocaleString();
 }
+function formatStatus(status) {
+    switch (status) {
+        case 0:
+            return "活跃";
+        case 1:
+            return "已满";
+        case 2:
+            return "结束";
+        default:
+            return "未知";
+    }
+}
+function viewAllSchedules() {
+    router.push({ path: "/docAllSchedule" });
+}
 function isDoctor() {
     if (doctor.value.doctorId ===''){
         alert("先登陆")
@@ -48,25 +70,28 @@ function isDoctor() {
 }
 async function fetchSchedules() {
     isDoctor();
-    axiosInstance.get('/schedule/getScheduleByDoctorId',{
-        params:{
-            doctorId: doctor.value.doctorId,
-            startDate: new Date().toISOString().split('T')[0],
-            endDate: new Date(new Date().setFullYear(new Date().getFullYear() + 1)).toISOString().split('T')[0]
-        }
-    }).then(response => {
+    try {
+        const response = await axiosInstance.get('/schedule/getScheduleByDoctorId', {
+            params: {
+                doctorId: doctor.value.doctorId,
+            }
+        });
         schedules.value = response.data;
-    }).catch(error => {
+        console.log('后端返回的排班数据:', response.data);
+    } catch (error) {
         ElMessage.error('获取排班数据失败');
         console.error(error);
-    });
+    }
 }
+const filteredSchedules = computed(() => {
+    const now = new Date();
+    return schedules.value.filter(schedule => new Date(schedule.endTime) > now);
+});
 
 onMounted(() => {
     fetchSchedules();
 });
 </script>
-
 <style scoped>
 .background {
     background-color: #e9f2ff;
@@ -96,6 +121,7 @@ onMounted(() => {
     margin-right: 20px;
     height: 680px;
     margin-top: 80px;
+    overflow: auto;
 }
 
 .body {
@@ -112,6 +138,9 @@ h2 {
     font-size: 30px;
     margin-left: 430px;
     margin-top: 10px;
+}
+.button-container {
+    margin-bottom: 20px;
 }
 
 .el-table {
