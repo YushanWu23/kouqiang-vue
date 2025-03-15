@@ -110,7 +110,7 @@ onMounted(() => {
 h2 {
     margin-bottom: 20px;
     font-size: 30px;
-    margin-left: 370px;
+    margin-left: 430px;
     margin-top: 10px;
 }
 
