@@ -7,14 +7,16 @@
                     <h2>预约</h2>
                     <el-table :data="schedules" style="width: 100%" border>
                         <el-table-column prop="scheduleId" label="ID" width="60"/>
-                        <el-table-column prop="doctor.doctorName" label="医生名" width="100"/>
+                        <el-table-column prop="doctor.doctorName" label="医生名" width="80"/>
+                        <el-table-column prop="doctor.specialty" label="领域" width="80"/>
+                        <el-table-column prop="doctor.title" label="职称" width="100"/>
                         <el-table-column label="时间范围">
                             <template #default="{row}">
                                 {{ formatDateTime(row.startTime) }} - {{ formatDateTime(row.endTime) }}
                             </template>
                         </el-table-column>
-                        <el-table-column prop="maxReservations" label="最大预约数" width="120"/>
-                        <el-table-column prop="currentReservations" label="当前预约数" width="120"/>
+                        <el-table-column prop="maxReservations" label="最大预约数" width="110"/>
+                        <el-table-column prop="currentReservations" label="当前预约数" width="110"/>
                         <el-table-column label="排班状态" width="120">
                             <template #default="{row}">
                                 <el-tag :type="{
