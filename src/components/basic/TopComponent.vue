@@ -11,6 +11,14 @@
       <button @click="goIndex">问答</button>
     </div>
     <div class="group">
+        <i class="group-hover:cursor-pointer fa-regular fa-envelope"></i>
+        <button @click="goMessage">咨询</button>
+    </div>
+    <div class="group">
+        <i class="group-hover:cursor-pointer fa-regular fa-calendar"></i>
+        <button @click="goReservation">预约</button>
+    </div>
+    <div class="group">
       <i class="group-hover:cursor-pointer fa-regular fa-compass"></i>
       <button @click="goOrders">购物</button>
     </div>
@@ -31,9 +39,21 @@ const router = useRouter()
 
 function goIndex(){
   router.push({
-    path : "/",
+    path : "/model",
   })
   console.log("问答")
+}
+function goMessage(){
+    router.push({
+        path : "/userChat",
+    })
+    console.log("咨询")
+}
+function goReservation(){
+    router.push({
+        path : "/reservation",
+    })
+    console.log("预约")
 }
 function goOrders(){
     router.push({
@@ -89,8 +109,8 @@ function goUserInfo(){
     justify-content: center;
     align-items: center;
     font-size: 18px;
-    padding-right: 75px;
-    padding-left: 75px;
+    padding-right: 40px;
+    padding-left: 40px;
     border-right: solid 1px #ccc;
 }
 button{
