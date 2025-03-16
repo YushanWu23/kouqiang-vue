@@ -5,6 +5,14 @@
             <div class="option" @click="goTo('info')">&nbsp;个人信息</div>
         </div>
         <div class="side">
+            <i class="fa-solid fa-user"></i>
+            <div class="option" @click="goTo('reservations')">&nbsp;用户预约</div>
+        </div>
+        <div class="side">
+            <i class="fa-solid fa-user"></i>
+            <div class="option" @click="goTo('medicalRecords')">&nbsp;用户病历</div>
+        </div>
+        <div class="side">
             <i class="fa-solid fa-cart-shopping"></i>
             <div class="option" @click="goTo('orders')">用户订单</div>
         </div>
@@ -31,6 +39,12 @@ function goTo(option) {
     switch (option) {
         case 'info':
             router.push({ path: '/userInfo' });
+            break;
+        case 'reservations':
+            router.push({ path: '/userReservation' });
+            break;
+        case 'medicalRecords':
+            router.push({ path: '/userMedicalRecords' });
             break;
         case 'orders':
             router.push({ path: '/myOrders' });
