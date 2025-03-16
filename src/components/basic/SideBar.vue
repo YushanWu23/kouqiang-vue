@@ -44,7 +44,7 @@ function goTo(option) {
             router.push({ path: '/userReservation' });
             break;
         case 'medicalRecords':
-            router.push({ path: '/userMedicalRecords' });
+            router.push({ path: '/userMedicalRecord' });
             break;
         case 'orders':
             router.push({ path: '/myOrders' });
