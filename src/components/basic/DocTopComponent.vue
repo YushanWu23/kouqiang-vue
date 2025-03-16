@@ -31,7 +31,7 @@ const router = useRouter()
 
 function goIndex(){
     router.push({
-        path : "/",
+        path : "/docChat",
     })
     console.log("咨询")
 }
