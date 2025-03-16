@@ -8,6 +8,101 @@ const router = createRouter({
       name: 'index',
       component: () => import('../view/HomeView.vue')
     },
+      {
+          path: '/model',
+          name: 'model',
+          component: () => import("../view/forUser/ModelView.vue")
+      },
+      {
+          path: '/userChat',
+          name: 'userChat',
+          component: () => import("../view/forUser/UserChatView.vue")
+      },
+      {
+          path: '/docChat',
+          name: 'docChat',
+          component: () => import("../view/forDoctor/DocChatView.vue")
+      },
+      {
+          path: '/adminLogin',
+          name: 'adminLogin',
+          component: () => import("../view/forAdmin/AdminLoginView.vue")
+      },
+      {
+          path: '/adminInfo',
+          name: 'adminInfo',
+          component: () => import("../view/forAdmin/AdminInfoView.vue")
+      },
+      {
+          path: '/adminForgotPwd',
+          name: 'adminForgotPwd',
+          component: () => import("../view/forAdmin/AdminForgotPwdView.vue")
+      },
+      {
+          path: '/adminSchedule',
+          name: 'adminSchedule',
+          component: () => import("../view/forAdmin/AdminScheduleView.vue")
+      },
+      {
+          path: '/adminMedicalRecord',
+          name: 'adminMedicalRecord',
+          component: () => import("../view/forAdmin/AdminMedicalRecordView.vue")
+      },
+      {
+          path: '/userMedicalRecord',
+          name: 'userMedicalRecord',
+          component: () => import("../view/forUser/UserMedicalRecordView.vue")
+      },
+      {
+          path: '/allFeedback',
+          name: 'allFeedback',
+          component: () => import("../view/forAdmin/AllFeedbackView.vue")
+      },
+      {
+          path: '/docLogin',
+          name: 'docLogin',
+          component: () => import("../view/forDoctor/DocLoginView.vue")
+      },
+      {
+          path: '/doctorInfo',
+          name: 'doctorInfo',
+          component: () => import("../view/forDoctor/DoctorInfoView.vue")
+      },
+      {
+          path: '/docForgotPwd',
+          name: 'docForgotPwd',
+          component: () => import("../view/forDoctor/DocForgotPwdView.vue")
+      },
+      {
+          path: '/docSchedule',
+          name: 'docSchedule',
+          component: () => import("../view/forDoctor/DocScheduleView.vue")
+      },
+      {
+          path: '/docAllSchedule',
+          name: 'docAllSchedule',
+          component: () => import("../view/forDoctor/DocAllScheduleView.vue")
+      },
+      {
+          path: '/docReservation',
+          name: 'docReservation',
+          component: () => import("../view/forDoctor/DocReservationView.vue")
+      },
+      {
+          path: '/docMedicalRecord',
+          name: 'docMedicalRecord',
+          component: () => import("../view/forDoctor/DocMedicalRecordView.vue")
+      },
+      {
+          path: '/docMedicalRecordInfo',
+          name: 'docMedicalRecordInfo',
+          component: () => import("../view/forDoctor/DocMedicalRecordInfoView.vue")
+      },
+      {
+          path: '/docCreateMedicalRecord',
+          name: 'docCreateMedicalRecord',
+          component: () => import("../view/forDoctor/DocCreateMedicalRecordViewView.vue")
+      },
      {
        path: '/login',
        name: 'login',
@@ -33,6 +128,16 @@ const router = createRouter({
           name: 'updateUserInfo',
           component: () => import("../view/forUser/ILoginViews/UpdateUserInfoView.vue")
      },
+      {
+          path: '/reservation',
+          name: 'reservation',
+          component: () => import("../view/forUser/IReservationViews/ReservationView.vue")
+      },
+      {
+          path: '/userReservation',
+          name: 'userReservation',
+          component: () => import("../view/forUser/IReservationViews/UserReservationView.vue")
+      },
       {
           path: '/knowledge',
           name: 'knowledge',
