@@ -41,17 +41,27 @@
 <script setup>
 import { ref, onBeforeMount } from "vue";
 import { useRouter } from "vue-router";
-import { axiosInstance } from "@/main";
+import {axiosInstance, useStore} from "@/main";
 import AdminTopComponent from "@/components/basic/AdminTopComponent.vue";
+import {storeToRefs} from "pinia";
+import {ElMessage} from "element-plus";
 
 const router = useRouter();
 const medicalRecords = ref([]); // 存储所有病历数据
 const searchKeyword = ref(""); // 搜索关键词
 const selectedDate = ref(null); // 选择的日期
 const searchingMedicalRecords = ref([]); // 存储搜索后的病历数据
-
+const store = useStore();
+const { admin } = storeToRefs(store);
+function isAdmin(){
+    if (!admin.value.adminId) {
+        ElMessage.warning('请先登录');
+        router.push('/docLogin');
+    }
+}
 // 加载所有病历记录
 const fetchMedicalRecords = () => {
+    isAdmin();
     axiosInstance.get('/medicalRecord/getAllMedicalRecord')
         .then(response => {
             medicalRecords.value = response.data;
@@ -193,7 +203,7 @@ li:hover {
     align-items: center;
 }
 
-.filter-section .el-input {
+.filter-section el-input {
     margin-right: 10px;
 }
 </style>
