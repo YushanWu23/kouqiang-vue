@@ -5,11 +5,11 @@
             <div class="option" @click="goTo('info')">&nbsp;个人信息</div>
         </div>
         <div class="side">
-            <i class="fa-solid fa-user"></i>
+            <i class="fa-solid fa-clipboard"></i>
             <div class="option" @click="goTo('reservations')">&nbsp;用户预约</div>
         </div>
         <div class="side">
-            <i class="fa-solid fa-user"></i>
+            <i class="fa-solid fa-clipboard"></i>
             <div class="option" @click="goTo('medicalRecords')">&nbsp;用户病历</div>
         </div>
         <div class="side">
