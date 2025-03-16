@@ -6,7 +6,7 @@
                 <div class="body">
                     <h2>病历详情</h2>
                     <div class="button1">
-                        <el-button type="primary" @click="goback()">返回</el-button>
+                        <el-button type="primary" @click="router.go(-1)">返回</el-button>
                     </div>
                     <div class="detail-section">
                         <el-descriptions title="基本信息" border>
@@ -70,18 +70,13 @@ const record = ref({
 const store = useStore();
 const { doctor } = storeToRefs(store);
 
-function isDoctor() {
-    if (!doctor.value.doctorId) {
-        ElMessage.warning('请先登录');
-        router.push('/docLogin');
-    }
-}
 
-function goback() {
+
+/*function goback() {
     router.push({
         path: '/docReservation',
     });
-}
+}*/
 
 // 生成完整的图片 URL
 function getImageUrl(imagePath) {
@@ -89,7 +84,6 @@ function getImageUrl(imagePath) {
 }
 
 const loadRecordDetail = async () => {
-    isDoctor();
     try {
         const res = await axiosInstance.get(`/medicalRecord/getMedicalRecordById`, {
             params: {
