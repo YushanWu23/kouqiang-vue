@@ -7,6 +7,9 @@ import BottomComponent from "@/components/basic/TopComponent.vue";
 import {createPinia, defineStore} from "pinia";
 import ElementPlus from 'element-plus';
 import 'element-plus/dist/index.css';
+import {Stomp} from "@stomp/stompjs";
+import SockJS from "sockjs-client";
+import 'global';
 export const axiosInstance = axios.create({
     baseURL: 'http://localhost:8082/kouqiang-user',
 })
