@@ -16,7 +16,7 @@
                     <div class="input-area"><!-- 输入 -->
                         <textarea
                                 v-model="userInput"
-                                placeholder="请输入您的法律问题..."
+                                placeholder="请输入..."
                                 @keyup.enter.exact.prevent="sendMessage"
                         ></textarea>
                         <button @click="sendMessage">发送</button>

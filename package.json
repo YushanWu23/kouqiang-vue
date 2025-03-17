@@ -13,9 +13,13 @@
     "@fortawesome/free-regular-svg-icons": "^6.5.1",
     "@fortawesome/free-solid-svg-icons": "^6.5.1",
     "@fortawesome/vue-fontawesome": "^3.0.5",
+    "@stomp/stompjs": "^7.0.1",
     "axios": "^1.6.2",
+    "crypto-js": "^4.2.0",
     "element-plus": "^2.9.6",
+    "global": "^4.4.0",
     "pinia": "^2.1.7",
+    "sockjs-client": "^1.6.1",
     "vue": "^3.3.4",
     "vue-router": "^4.2.5"
   },
