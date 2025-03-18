@@ -4,7 +4,10 @@
         <div class="wrapper">
             <div class="container">
                 <div class="body">
-                    <h2>模型问答</h2>
+                    <div class="header">
+                        <h2>模型问答</h2>
+                        <button class="clear-btn" @click="clearMessages">清空对话</button>
+                    </div>
                     <div class="chat-container"><!-- 聊天历史 -->
                         <div v-for="(msg, index) in messages" :key="index" class="message"
                              :class="{ 'user-msg': msg.role === 'user', 'bot-msg': msg.role === 'bot' }">

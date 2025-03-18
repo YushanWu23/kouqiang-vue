@@ -55,10 +55,10 @@
 <script setup>
 import { ref, onMounted } from 'vue';
 import { useStore } from '@/main';
+import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { axiosInstance, connectWebSocket } from '@/main';
 import TopComponent from "@/components/basic/TopComponent.vue";
-import SockJS from 'sockjs-client';
 const store = useStore();
 const stompClient = ref(null);
 const consultationRequests = ref([]);
@@ -66,9 +66,18 @@ const currentConsultation = ref(null);
 const messages = ref([]);
 const newMessage = ref('');
 const { doctor } = storeToRefs(store);
-
+const router = useRouter();
+function isDoctor() {
+    if (doctor.value.doctorId ===''){
+        alert("先登陆")
+        router.push({
+            path:"/login"
+        })
+    }
+}
 // 获取咨询请求
 const fetchConsultationRequests = async () => {
+    isDoctor();
     const response = await axiosInstance.get('/consultation/requests');
     consultationRequests.value = response.data;
 };
