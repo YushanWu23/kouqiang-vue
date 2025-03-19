@@ -8,7 +8,8 @@
                         <h2>模型问答</h2>
                         <button class="clear-btn" @click="clearMessages">清空对话</button>
                     </div>
-                    <div class="chat-container"><!-- 聊天历史 -->
+                    <!-- 聊天历史 -->
+                    <div class="chat-container" ref="chatContainer">
                         <div v-for="(msg, index) in messages" :key="index" class="message"
                              :class="{ 'user-msg': msg.role === 'user', 'bot-msg': msg.role === 'bot' }">
                             <div class="message-content">
@@ -30,7 +31,7 @@
     </div>
 </template>
 <script setup>
-import { ref } from "vue";
+import { ref , onMounted, nextTick} from "vue";
 import { useRouter } from "vue-router";
 import {axiosInstance, useStore} from "@/main";
 import { storeToRefs } from "pinia";

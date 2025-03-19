@@ -20,5 +20,10 @@ export default defineConfig({
   },
   define: {
     global: 'window'
+  },
+  build: {
+    rollupOptions: {
+      external: ['window'], // 外部化 window 模块
+    },
   }
-})
+});
