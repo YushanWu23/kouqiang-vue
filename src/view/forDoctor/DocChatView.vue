@@ -1,5 +1,5 @@
 <template>
-    <TopComponent/>
+    <DocTopComponent/>
     <div class="background">
         <div class="wrapper">
             <div class="container">
@@ -58,7 +58,9 @@ import { useStore } from '@/main';
 import { useRouter } from "vue-router";
 import { storeToRefs } from "pinia";
 import { axiosInstance, connectWebSocket } from '@/main';
-import TopComponent from "@/components/basic/TopComponent.vue";
+import DocTopComponent from "@/components/basic/DocTopComponent.vue";
+import SockJS from "sockjs-client";
+import {Stomp} from "@stomp/stompjs";
 const store = useStore();
 const stompClient = ref(null);
 const consultationRequests = ref([]);
@@ -71,10 +73,68 @@ function isDoctor() {
     if (doctor.value.doctorId ===''){
         alert("先登陆")
         router.push({
-            path:"/login"
+            path:"/docLogin"
         })
     }
 }
+onMounted(() => {
+  const token = sessionStorage.getItem('token');
+  if (!token) {
+    alert('请先登录');
+    router.push('/docLogin');
+    return;
+  }
+
+  const socket = new SockJS(`http://localhost:8082/kouqiang-user/ws/consultation?token=${token}`);
+  stompClient.value = Stomp.over(socket);
+
+  stompClient.value.connect(
+      {}, // 此处 headers 无效，需在 SockJS 初始化时传递
+      () => {
+        console.log('WebSocket 连接成功');
+        stompClient.value.subscribe(
+            `/user/${doctor.value.doctorId}/queue/consultation/status`,
+            (message) => {
+              currentConsultation.value = JSON.parse(message.body);
+            }
+        );
+        // 订阅医生专属咨询请求队列
+        stompClient.value.subscribe(
+            `/user/${doctor.value.doctorId}/queue/consultation/requests`,
+            (message) => {
+              // 使用解构赋值触发响应式更新
+              consultationRequests.value = [
+                ...consultationRequests.value,
+                JSON.parse(message.body)
+              ];
+            }
+        );
+        // 订阅医生专属消息队列
+        stompClient.value.subscribe(
+            `/user/${doctor.value.doctorId}/queue/consultation/messages`,
+            (message) => {
+              messages.value.push(JSON.parse(message.body));
+            }
+        );
+        stompClient.value.subscribe(
+            `/user/${doctor.value.doctorId}/queue/consultation/status`,
+            (message) => {
+              const consultation = JSON.parse(message.body);
+              if (consultation.status === '已结束') {
+                currentConsultation.value = null;
+                messages.value = [];
+                alert('对方已结束咨询');
+              }
+            }
+        );
+        // 获取咨询请求列表
+        fetchConsultationRequests();
+      },
+      (error) => {
+        console.error('WebSocket 连接失败:', error);
+      }
+  );
+});
 // 获取咨询请求
 const fetchConsultationRequests = async () => {
     isDoctor();
@@ -83,15 +143,18 @@ const fetchConsultationRequests = async () => {
 };
 
 // 接受咨询
-const acceptConsultation = async (consultationId) => {
-    const response = await axiosInstance.post('/consultation/accept', {
-        consultationId: consultationId
-    });
-    if (response.data) {
-        currentConsultation.value = response.data;
-        fetchMessages(currentConsultation.value.consultationId);
-        connectWebSocket();
-    }
+const acceptConsultation = (consultationId) => {
+  stompClient.value.send(
+      '/app/consultation/accept',
+      {},
+      JSON.stringify({ consultationId })
+  );
+
+  // 跳转到咨询页面
+  router.push({
+    name: 'ConsultationChat',
+    params: { consultationId }
+  });
 };
 
 // 发送消息
@@ -117,7 +180,10 @@ const handleFileUpload = async (event) => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await axiosInstance.post('/upload', formData);
+    const response = await axiosInstance.post('/upload', formData,{
+      headers : {
+        "Content-Type" : "application/x-www-form-urlencoded"
+      }});
     const message = {
         content: response.data.filePath,
         type: 'image'
@@ -151,19 +217,16 @@ const toggleOnlineStatus = async () => {
     const response = await axiosInstance.post('/doctor/updateOnlineStatus', {
         doctorId: doctor.value.doctorId,
         onlineStatus: newStatus
-    });
+    },{
+      headers : {
+        "Content-Type" : "application/x-www-form-urlencoded"
+      }});
     if (response.data === 1) {
         doctor.value.onlineStatus = newStatus;
         alert(`状态已切换为：${newStatus ? '在线' : '离线'}`);
     }
 };
 
-onMounted(() => {
-    fetchConsultationRequests();
-    connectWebSocket((message) => {
-        messages.value.push(JSON.parse(message));
-    });
-});
 </script>
 <style scoped>
 .background {

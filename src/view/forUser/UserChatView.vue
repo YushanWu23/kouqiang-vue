@@ -54,6 +54,7 @@ import { storeToRefs } from "pinia";
 import { axiosInstance, connectWebSocket } from '@/main';
 import TopComponent from "@/components/basic/TopComponent.vue";
 import SockJS from 'sockjs-client';
+import {Stomp} from "@stomp/stompjs";
 const store = useStore();
 const { user } = storeToRefs(store);
 const doctors = ref([]);
@@ -62,58 +63,132 @@ const stompClient = ref(null);
 const currentConsultation = ref(null);
 const messages = ref([]);
 const newMessage = ref('');
+function isUser() {
+  if (user.value.userId ===''){
+    alert("先登陆")
+    router.push({
+      path:"/login"
+    })
+  }
+}
+// 初始化 WebSocket 连接
+onMounted(() => {
+  const token = sessionStorage.getItem('token');
+  if (!token) {
+    alert('请先登录');
+    router.push('/login');
+    return;
+  }
+
+  // 修改点：在 URL 中传递 Token
+  const socket = new SockJS(`http://localhost:8082/kouqiang-user/ws/consultation?token=${token}`);
+  stompClient.value = Stomp.over(socket);
+
+  stompClient.value.connect(
+      {},
+      () => {
+        console.log('WebSocket 连接成功');
+        stompClient.value.subscribe(
+            `/user/${user.value.userId}/queue/consultation/messages`,
+            (message) => {
+              messages.value.push(JSON.parse(message.body));
+            }
+        );
+        stompClient.value.subscribe(
+            `/user/${user.value.userId}/queue/consultation/status`,
+            (message) => {
+              currentConsultation.value = JSON.parse(message.body);
+              // 自动跳转到咨询界面
+              router.push({ path: '/consultation' });
+            }
+        );
+        stompClient.value.subscribe(
+            `/user/${user.value.userId}/queue/consultation/status`,
+            (message) => {
+              const consultation = JSON.parse(message.body);
+              if (consultation.status === '已结束') {
+                currentConsultation.value = null;
+                messages.value = [];
+                alert('对方已结束咨询');
+              }
+            }
+        );
+      },
+      (error) => {
+        console.error('WebSocket 连接失败:', error);
+      }
+  );
+
+  fetchOnlineDoctors();
+});
 
 // 获取在线医生列表（修改）
 const fetchOnlineDoctors = async () => {
+  isUser();
     const response = await axiosInstance.get('/doctor/getOnlineDoc');
     doctors.value = response.data;
 };
 
 // 开始咨询
 const startConsultation = async () => {
-    const response = await axiosInstance.post('/consultation/start', {
-        doctorId: selectedDoctor.value
-    });
-    if (response.data) {
-        currentConsultation.value = response.data;
-        await fetchMessages(currentConsultation.value.consultationId);
-        connectWebSocket();
-    }
+  if (!selectedDoctor.value) {
+    alert("请选择医生");
+    return;
+  }
+  console.log('尝试发起咨询，医生 ID:', selectedDoctor.value);
+  // 通过 WebSocket 发送消息（不再使用 HTTP POST）
+  stompClient.value.send(
+      "/app/start",
+      {}, // headers 保持为空
+      JSON.stringify({ doctorId: selectedDoctor.value }),
+      (error) => { // 添加错误回调
+        if (error) {
+          console.error('发送失败:', error.headers.message);
+          alert('发起咨询失败: ' + error.headers.message);
+        }
+      }
+  );
 };
 
 // 发送消息
-const sendMessage = async () => {
-    if (!newMessage.value.trim()) return;
+const sendMessage = () => {
+  if (!newMessage.value.trim()) return;
 
-    const message = {
-        content: newMessage.value,
-        type: 'text'
-    };
+  const message = {
+    content: newMessage.value,
+    type: 'text'
+  };
 
-    stompClient.value.publish({
-        destination: `/app/consultation/${currentConsultation.value.consultationId}/message`,
-        body: JSON.stringify(message)
-    });
+  // 统一使用 stompClient.value
+  stompClient.value.send(
+      `/app/consultation/${currentConsultation.value.consultationId}/message`,
+      {},
+      JSON.stringify(message)
+  );
 
-    newMessage.value = '';
+  newMessage.value = '';
 };
 
 // 文件上传
 const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
-    const formData = new FormData();
-    formData.append('file', file);
+  const file = event.target.files[0];
+  const formData = new FormData();
+  formData.append('file', file);
 
-    const response = await axiosInstance.post('/upload', formData);
-    const message = {
-        content: response.data.filePath,
-        type: 'image'
-    };
+  const response = await axiosInstance.post('/upload', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' }
+  });
 
-    stompClient.value.publish({
-        destination: `/app/consultation/${currentConsultation.value.consultationId}/message`,
-        body: JSON.stringify(message)
-    });
+  const message = {
+    content: response.data.filePath,
+    type: 'image'
+  };
+
+  stompClient.value.send(
+      `/app/consultation/${currentConsultation.value.consultationId}/message`,
+      {},
+      JSON.stringify(message)
+  );
 };
 
 // 获取图片 URL
@@ -132,12 +207,6 @@ const fetchMessages = async (consultationId) => {
     messages.value = response.data;
 };
 
-onMounted(() => {
-    fetchOnlineDoctors(); // 修改为获取在线医生
-    connectWebSocket((message) => {
-        messages.value.push(JSON.parse(message));
-    });
-});
 </script>
 <style scoped>
 .background {
