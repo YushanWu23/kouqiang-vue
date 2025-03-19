@@ -5,33 +5,27 @@
             <div class="container">
                 <div class="body">
                     <h2>在线咨询</h2>
-                    <div v-if="currentConsultation" class="consultation-container">
-                        <!-- 聊天区域 -->
-                        <div class="chat-area">
-                            <div v-for="(message, index) in messages"
-                                 :key="index"
-                                 :class="['message', message.sender === '用户' ? 'user' : 'doctor']">
-                                <div class="message-content">
-                                    <div class="message-sender">{{ message.sender }}</div>
-                                    <div v-if="message.type === 'text'" class="message-text">{{ message.content }}</div>
-                                    <img v-else :src="getImageUrl(message.content)" class="message-image" alt="图片"/>
-                                    <div class="message-time">{{ formatTime(message.sendTime) }}</div>
-                                </div>
-                            </div>
+                  <div v-if="currentConsultation" class="consultation-container">
+                    <div class="chat-area">
+                      <div v-for="(message, index) in messages"
+                           :key="index"
+                           :class="['message', message.sender === '用户' ? 'user' : 'doctor']">
+                        <div class="message-content">
+                          <div class="message-sender">{{ message.sender }}</div>
+                          <div v-if="message.type === 'text'" class="message-text">{{ message.content }}</div>
+                          <img v-else :src="getImageUrl(message.content)" class="message-image" alt="图片"/>
+                          <div class="message-time">{{ formatTime(message.sendTime) }}</div>
                         </div>
-
-                        <!-- 输入区域 -->
-                        <div class="input-area">
-                            <input v-model="newMessage"
-                                   @keyup.enter="sendMessage"
-                                   placeholder="输入消息..."/>
-                            <button @click="sendMessage">发送</button>
-                            <input type="file" @change="handleFileUpload" accept="image/*"/>
-                        </div>
+                      </div>
                     </div>
-
+                    <div class="input-area">
+                      <input v-model="newMessage" @keyup.enter="sendMessage" placeholder="输入消息..."/>
+                      <button @click="sendMessage">发送</button>
+                      <input type="file" @change="handleFileUpload" accept="image/*"/>
+                    </div>
+                  </div>
                     <!-- 未开始咨询时的界面 -->
-                    <div v-if="!currentConsultation" class="start-consultation">
+                    <div v-else class="start-consultation">
                         <select v-model="selectedDoctor">
                             <option v-for="doctor in doctors"
                                     :value="doctor.doctorId"
@@ -80,49 +74,38 @@ onMounted(() => {
     return;
   }
 
-  // 修改点：在 URL 中传递 Token
   const socket = new SockJS(`http://localhost:8082/kouqiang-user/ws/consultation?token=${token}`);
   stompClient.value = Stomp.over(socket);
 
-  stompClient.value.connect(
-      {},
-      () => {
-        console.log('WebSocket 连接成功');
-        stompClient.value.subscribe(
-            `/user/${user.value.userId}/queue/consultation/messages`,
-            (message) => {
-              messages.value.push(JSON.parse(message.body));
-            }
-        );
-        stompClient.value.subscribe(
-            `/user/${user.value.userId}/queue/consultation/status`,
-            (message) => {
-              currentConsultation.value = JSON.parse(message.body);
-              // 自动跳转到咨询界面
-              router.push({ path: '/consultation' });
-            }
-        );
-        stompClient.value.subscribe(
-            `/user/${user.value.userId}/queue/consultation/status`,
-            (message) => {
-              const consultation = JSON.parse(message.body);
-              if (consultation.status === '已结束') {
-                currentConsultation.value = null;
-                messages.value = [];
-                alert('对方已结束咨询');
-              }
-            }
-        );
-      },
-      (error) => {
-        console.error('WebSocket 连接失败:', error);
-      }
-  );
+  stompClient.value.connect({}, () => {
+    console.log('WebSocket连接成功');
+
+    // 订阅状态更新
+    stompClient.value.subscribe(
+        `/user/queue/consultation/status`,
+        (message) => {
+          currentConsultation.value = JSON.parse(message.body);
+          if (currentConsultation.value) {
+            fetchMessages(currentConsultation.value.consultationId);
+          }
+        }
+    );
+
+    // 订阅消息
+    stompClient.value.subscribe(
+        `/user/queue/consultation/messages`,
+        (message) => {
+          messages.value.push(JSON.parse(message.body));
+        }
+    );
+  }, (error) => {
+    console.error('WebSocket连接失败:', error);
+  });
 
   fetchOnlineDoctors();
 });
 
-// 获取在线医生列表（修改）
+// 获取在线医生列表
 const fetchOnlineDoctors = async () => {
   isUser();
     const response = await axiosInstance.get('/doctor/getOnlineDoc');
@@ -136,18 +119,24 @@ const startConsultation = async () => {
     return;
   }
   console.log('尝试发起咨询，医生 ID:', selectedDoctor.value);
-  // 通过 WebSocket 发送消息（不再使用 HTTP POST）
-  stompClient.value.send(
-      "/app/start",
-      {}, // headers 保持为空
-      JSON.stringify({ doctorId: selectedDoctor.value }),
-      (error) => { // 添加错误回调
-        if (error) {
-          console.error('发送失败:', error.headers.message);
-          alert('发起咨询失败: ' + error.headers.message);
-        }
-      }
-  );
+  try {
+    // 使用HTTP创建咨询
+    const response = await axiosInstance.post('/consultation/start', {
+      doctorId: selectedDoctor.value
+    });
+
+    // 通过WebSocket通知医生
+    stompClient.value.send(
+        "/app/notify/newRequest",
+        {},
+        JSON.stringify(response.data)
+    );
+
+    currentConsultation.value = response.data;
+  } catch (error) {
+    console.error('发起咨询失败:', error);
+    alert(`错误: ${error.response?.data?.message || error.message}`);
+  }
 };
 
 // 发送消息
@@ -201,7 +190,7 @@ const formatTime = (time) => {
     return new Date(time).toLocaleTimeString();
 };
 
-// 获取历史消息（新增）
+// 获取历史消息
 const fetchMessages = async (consultationId) => {
     const response = await axiosInstance.get(`/consultation/messages/${consultationId}`);
     messages.value = response.data;

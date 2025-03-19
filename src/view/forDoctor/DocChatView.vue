@@ -88,52 +88,44 @@ onMounted(() => {
   const socket = new SockJS(`http://localhost:8082/kouqiang-user/ws/consultation?token=${token}`);
   stompClient.value = Stomp.over(socket);
 
-  stompClient.value.connect(
-      {}, // 此处 headers 无效，需在 SockJS 初始化时传递
-      () => {
-        console.log('WebSocket 连接成功');
-        stompClient.value.subscribe(
-            `/user/${doctor.value.doctorId}/queue/consultation/status`,
-            (message) => {
-              currentConsultation.value = JSON.parse(message.body);
-            }
-        );
-        // 订阅医生专属咨询请求队列
-        stompClient.value.subscribe(
-            `/user/${doctor.value.doctorId}/queue/consultation/requests`,
-            (message) => {
-              // 使用解构赋值触发响应式更新
-              consultationRequests.value = [
-                ...consultationRequests.value,
-                JSON.parse(message.body)
-              ];
-            }
-        );
-        // 订阅医生专属消息队列
-        stompClient.value.subscribe(
-            `/user/${doctor.value.doctorId}/queue/consultation/messages`,
-            (message) => {
-              messages.value.push(JSON.parse(message.body));
-            }
-        );
-        stompClient.value.subscribe(
-            `/user/${doctor.value.doctorId}/queue/consultation/status`,
-            (message) => {
-              const consultation = JSON.parse(message.body);
-              if (consultation.status === '已结束') {
-                currentConsultation.value = null;
-                messages.value = [];
-                alert('对方已结束咨询');
-              }
-            }
-        );
-        // 获取咨询请求列表
-        fetchConsultationRequests();
-      },
-      (error) => {
-        console.error('WebSocket 连接失败:', error);
-      }
-  );
+  stompClient.value.connect({}, () => {
+    console.log('WebSocket连接成功');
+
+    // 订阅新请求
+    stompClient.value.subscribe(
+        `/user/queue/consultation/requests`,
+        (message) => {
+          consultationRequests.value = [
+            ...consultationRequests.value,
+            JSON.parse(message.body)
+          ];
+        }
+    );
+
+    // 订阅状态更新
+    stompClient.value.subscribe(
+        `/user/queue/consultation/status`,
+        (message) => {
+          const consultation = JSON.parse(message.body);
+          currentConsultation.value = consultation;
+          if (consultation.status === '已结束') {
+            messages.value = [];
+          }
+        }
+    );
+
+    // 订阅消息
+    stompClient.value.subscribe(
+        `/user/queue/consultation/messages`,
+        (message) => {
+          messages.value.push(JSON.parse(message.body));
+        }
+    );
+
+    fetchConsultationRequests();
+  }, (error) => {
+    console.error('WebSocket连接失败:', error);
+  });
 });
 // 获取咨询请求
 const fetchConsultationRequests = async () => {
@@ -145,16 +137,15 @@ const fetchConsultationRequests = async () => {
 // 接受咨询
 const acceptConsultation = (consultationId) => {
   stompClient.value.send(
-      '/app/consultation/accept',
+      "/app/consultation/accept",
       {},
       JSON.stringify({ consultationId })
   );
 
-  // 跳转到咨询页面
-  router.push({
-    name: 'ConsultationChat',
-    params: { consultationId }
-  });
+  currentConsultation.value = consultationRequests.value.find(
+      c => c.consultationId === consultationId
+  );
+  fetchMessages(consultationId);
 };
 
 // 发送消息
