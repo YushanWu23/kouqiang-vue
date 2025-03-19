@@ -84,6 +84,7 @@ onMounted(() => {
     stompClient.value.subscribe(
         `/user/queue/consultation/status`,
         (message) => {
+          console.log('收到状态更新消息:', message.body);
           currentConsultation.value = JSON.parse(message.body);
           if (currentConsultation.value) {
             fetchMessages(currentConsultation.value.consultationId);
@@ -95,6 +96,7 @@ onMounted(() => {
     stompClient.value.subscribe(
         `/user/queue/consultation/messages`,
         (message) => {
+          console.log('收到新消息:', message.body);
           messages.value.push(JSON.parse(message.body));
         }
     );
@@ -147,14 +149,14 @@ const sendMessage = () => {
     content: newMessage.value,
     type: 'text'
   };
-
+  console.log('准备发送消息:', message);
   // 统一使用 stompClient.value
   stompClient.value.send(
       `/app/consultation/${currentConsultation.value.consultationId}/message`,
       {},
       JSON.stringify(message)
   );
-
+  console.log('消息已发送');
   newMessage.value = '';
 };
 
