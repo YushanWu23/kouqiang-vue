@@ -46,6 +46,23 @@ function goPayment(orderId){
         }
     })
 }
+function deleteOrder(orderId) {
+  axiosInstance.delete(`/orders/deleteOrder`, {
+    params: {
+      orderId: orderId
+    }
+  }).then(response => {
+    if (response.data.success) {
+      alert("订单删除成功");
+      fetchOrders(); // 刷新订单列表
+    } else {
+      alert("订单删除失败: " + response.data.message);
+    }
+  }).catch(error => {
+    console.error("删除订单时出错:", error);
+    alert("删除订单时出错");
+  });
+}
 </script>
 
 <template>
@@ -74,6 +91,9 @@ function goPayment(orderId){
                                         <div class="payText" >
                                             <button @click="goPayment(order.orderId)">去支付</button>
                                         </div>
+                                       <div class="payText" >
+                                            <button @click="deleteOrder(order.orderId)">删除</button>
+                                       </div>
                                     </div>
                                 </div>
                                 <ul class="orderList" v-show="order.showState">
@@ -227,10 +247,10 @@ h2 {
 .body1 .nonePayList li .content .right .payText{
     color: white;
     background-color: darkorange;
-    margin-left: 2vw;
+    margin-left: 10px;
     border-radius: 4px; /* 圆角边框 */
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* 添加阴影效果 */
-    padding: 2px 3px;
+    padding: 2px 5px;
     font-size: 0.8vw;
 }
 .body1 .nonePayList li .orderList{
