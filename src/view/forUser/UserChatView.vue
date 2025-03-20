@@ -6,6 +6,7 @@
                 <div class="body">
                     <h2>在线咨询</h2>
                   <div v-if="currentConsultation" class="consultation-container">
+                    <button @click="endConsultation">结束咨询</button>
                     <div class="chat-area">
                       <div v-for="(message, index) in messages"
                            :key="index"
@@ -49,6 +50,7 @@ import { axiosInstance, connectWebSocket } from '@/main';
 import TopComponent from "@/components/basic/TopComponent.vue";
 import SockJS from 'sockjs-client';
 import {Stomp} from "@stomp/stompjs";
+import router from "@/router";
 const store = useStore();
 const { user } = storeToRefs(store);
 const doctors = ref([]);
@@ -96,8 +98,11 @@ onMounted(() => {
     stompClient.value.subscribe(
         `/user/queue/consultation/messages`,
         (message) => {
-          console.log('收到新消息:', message.body);
-          messages.value.push(JSON.parse(message.body));
+          console.log('收到消息:', message.body);
+          const parsedMessage = JSON.parse(message.body);
+          console.log('解析后的消息:', parsedMessage);
+          messages.value.push(parsedMessage);
+          console.log('消息已添加到 messages 数组:', messages.value);
         }
     );
   }, (error) => {
@@ -106,7 +111,17 @@ onMounted(() => {
 
   fetchOnlineDoctors();
 });
-
+// 结束对话
+const endConsultation = () => {
+  stompClient.value.send(
+      `/app/${currentConsultation.value.consultationId}/end`,
+      {},
+      JSON.stringify({})
+  );
+  currentConsultation.value = null;
+  messages.value = [];
+  router.push("/userInfo")
+};
 // 获取在线医生列表
 const fetchOnlineDoctors = async () => {
   isUser();
@@ -147,12 +162,17 @@ const sendMessage = () => {
 
   const message = {
     content: newMessage.value,
-    type: 'text'
+    type: 'text',
+    sender: '用户'
   };
+  /*messages.value.push({
+    ...message,
+    sendTime: new Date().toISOString()
+  });*/
   console.log('准备发送消息:', message);
   // 统一使用 stompClient.value
   stompClient.value.send(
-      `/app/consultation/${currentConsultation.value.consultationId}/message`,
+      `/app/${currentConsultation.value.consultationId}/message`,
       {},
       JSON.stringify(message)
   );
@@ -172,11 +192,12 @@ const handleFileUpload = async (event) => {
 
   const message = {
     content: response.data.filePath,
-    type: 'image'
+    type: 'image',
+    sender: 'user'
   };
 
   stompClient.value.send(
-      `/app/consultation/${currentConsultation.value.consultationId}/message`,
+      `/app/${currentConsultation.value.consultationId}/message`,
       {},
       JSON.stringify(message)
   );
@@ -252,6 +273,7 @@ h2 {
     flex-direction: column;
     height: 600px;
     width: 100%;
+    overflow: auto;
 }
 
 .chat-area {
