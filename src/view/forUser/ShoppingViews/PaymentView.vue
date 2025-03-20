@@ -97,10 +97,6 @@ onBeforeMount(fetchOrders1)
                             </div>
                         </ul>
 
-                        <div class="payMethod">
-                            <img src="../../../assets/img/alipay.png">
-                            <img src="../../../assets/img/wechat.png">
-                        </div>
                         <div class="pay">
                             <button @click="pay">确认支付</button>
                         </div>
