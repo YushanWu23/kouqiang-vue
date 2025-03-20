@@ -34,7 +34,11 @@
                                 <div class="message-content">
                                     <div class="message-sender">{{ message.sender }}</div>
                                     <div v-if="message.type === 'text'" class="message-text">{{ message.content }}</div>
-                                    <img v-else :src="getImageUrl(message.content)" class="message-image" alt="图片"/>
+                                    <div v-else>
+                                      <a :href="getImageUrl(message.content)" target="_blank">
+                                        <img :src="getImageUrl(message.content)" class="message-image" alt="图片"/>
+                                      </a>
+                                    </div>
                                     <div class="message-time">{{ formatTime(message.sendTime) }}</div>
                                 </div>
                             </div>
@@ -44,7 +48,18 @@
                                    @keyup.enter="sendMessage"
                                    placeholder="输入消息..."/>
                             <button @click="sendMessage">发送</button>
-                            <input type="file" @change="handleFileUpload" accept="image/*"/>
+                          <!-- 图片上传组件 -->
+                          <input type="file" ref="fileInput" @change="handleFileUpload" accept="image/*" class="file-input"/>
+                          <!-- 显示上传预览 -->
+                          <div v-if="imageUrl" class="image-preview">
+                            <div class="image-item">
+                              <a :href="imageUrl" target="_blank">
+                                <img :src="imageUrl" alt="Uploaded Image" class="preview-image" />
+                              </a>
+                              <button @click="removeFile">删除</button>
+                            </div>
+                          </div>
+                          <button v-if="imageUrl" @click="sendImageMessage">发送图片</button>
                         </div>
                     </div>
                 </div>
@@ -70,6 +85,9 @@ const messages = ref([]);
 const newMessage = ref('');
 const { doctor } = storeToRefs(store);
 const router = useRouter();
+const fileInput = ref(null);
+const imageUrl = ref(null);//只存储一个图片
+const currentFile = ref(null);
 function isDoctor() {
     if (doctor.value.doctorId ===''){
         alert("先登陆")
@@ -136,6 +154,17 @@ const fetchConsultationRequests = async () => {
     const response = await axiosInstance.get('/consultation/requests');
     consultationRequests.value = response.data;
 };
+function handleFileUpload(event) {
+  const file = event.target.files[0];
+  if (file) {
+    currentFile.value = file;
+    imageUrl.value = URL.createObjectURL(file); // 生成临时 URL
+  }
+}
+function removeFile() {
+  currentFile.value = null;
+  imageUrl.value = null;
+}
 // 结束对话
 const endConsultation = () => {
   stompClient.value.send(
@@ -183,31 +212,45 @@ const sendMessage = async () => {
     newMessage.value = '';
 };
 
-// 文件上传
-const handleFileUpload = async (event) => {
-    const file = event.target.files[0];
-    const formData = new FormData();
-    formData.append('file', file);
 
-    const response = await axiosInstance.post('/upload', formData,{
-      headers : {
-        "Content-Type" : "application/x-www-form-urlencoded"
-      }});
-    const message = {
-        content: response.data.filePath,
-        type: 'image',
-        sender: 'doctor'
-    };
+// 发送图片消息
+const sendImageMessage = async () => {
+  if (!currentFile.value) return;
 
-    stompClient.value.publish({
-        destination: `/app/${currentConsultation.value.consultationId}/message`,
-        body: JSON.stringify(message)
+  const formData = new FormData();
+  formData.append("file", currentFile.value);
+
+  try {
+    const response = await axiosInstance.post('/consultation/uploadImage', formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
     });
-};
 
+    const message = {
+      content: response.data,
+      type: 'image',
+      sender: '医生'
+    };
+    stompClient.value.send(
+        `/app/${currentConsultation.value.consultationId}/message`,
+        {},
+        JSON.stringify(message)
+    );
+
+    // 清空文件输入框和预览
+    if (fileInput.value) {
+      fileInput.value.value = "";
+    }
+    currentFile.value = null;
+    imageUrl.value = null;
+  } catch (error) {
+    console.error('图片上传失败:', error);
+  }
+};
 // 获取图片 URL
 const getImageUrl = (filePath) => {
-    return `http://localhost:8082/kouqiang-user/uploads/${filePath}`;
+    return `http://localhost:8082/kouqiang-user${filePath}`;
 };
 
 // 格式化时间
@@ -221,7 +264,7 @@ const fetchMessages = async (consultationId) => {
     messages.value = response.data;
 };
 
-// 切换医生在线状态（新增）
+// 切换医生在线状态
 const toggleOnlineStatus = async () => {
     const newStatus = !doctor.value.onlineStatus;
     const response = await axiosInstance.post('/doctor/updateOnlineStatus', {
@@ -239,6 +282,20 @@ const toggleOnlineStatus = async () => {
 
 </script>
 <style scoped>
+.image-preview{
+  display: flex;
+}
+.image-item{
+  display: flex;
+  width:110px;
+  margin-right: 25px;
+}
+.image-item a{
+  height: 73px;
+}
+.image-item button{
+  padding-left: 5px;
+}
 .background {
     background-color: #e9f2ff;
     height: 100%;
