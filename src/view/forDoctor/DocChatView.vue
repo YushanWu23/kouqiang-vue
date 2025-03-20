@@ -6,7 +6,7 @@
                 <div class="body">
                     <h2>咨询管理</h2>
                     <!-- 医生在线状态切换 -->
-                    <div class="online-status">
+                    <div class="online-status" v-if="!currentConsultation"><!--进入对话框时消失-->
                         <button @click="toggleOnlineStatus">
                             {{ doctor.onlineStatus ? '切换为离线' : '切换为在线' }}
                         </button>
@@ -14,7 +14,7 @@
                     </div>
 
                     <!-- 请求列表 -->
-                    <div class="request-list">
+                    <div class="request-list" v-if="!currentConsultation"><!--进入对话框时消失-->
                         <div v-for="request in consultationRequests"
                              :key="request.consultationId"
                              class="request-item"
@@ -26,10 +26,11 @@
 
                     <!-- 当前咨询界面 -->
                     <div v-if="currentConsultation" class="consultation-container">
-                        <div class="chat-area">
+                      <button @click="endConsultation">结束咨询</button>
+                      <div class="chat-area">
                             <div v-for="(message, index) in messages"
                                  :key="index"
-                                 :class="['message', message.sender === '用户' ? 'user' : 'doctor']">
+                                 :class="['message', message.sender === '医生' ? 'doctor' : 'user']">
                                 <div class="message-content">
                                     <div class="message-sender">{{ message.sender }}</div>
                                     <div v-if="message.type === 'text'" class="message-text">{{ message.content }}</div>
@@ -135,11 +136,21 @@ const fetchConsultationRequests = async () => {
     const response = await axiosInstance.get('/consultation/requests');
     consultationRequests.value = response.data;
 };
-
+// 结束对话
+const endConsultation = () => {
+  stompClient.value.send(
+      `/app/${currentConsultation.value.consultationId}/end`,
+      {},
+      JSON.stringify({})
+  );
+  currentConsultation.value = null;
+  messages.value = [];
+  router.push("/doctorInfo")
+};
 // 接受咨询
 const acceptConsultation = (consultationId) => {
   stompClient.value.send(
-      "/app/consultation/accept",
+      "/app/accept",
       {},
       JSON.stringify({ consultationId })
   );
@@ -156,11 +167,16 @@ const sendMessage = async () => {
 
     const message = {
         content: newMessage.value,
-        type: 'text'
+        type: 'text',
+        sender: '医生'
     };
+    /*messages.value.push({
+      ...message,
+      sendTime: new Date().toISOString()
+    });*/
     console.log('准备发送消息:', message);
     stompClient.value.publish({
-        destination: `/app/consultation/${currentConsultation.value.consultationId}/message`,
+        destination: `/app/${currentConsultation.value.consultationId}/message`,
         body: JSON.stringify(message)
     });
     console.log('消息已发送');
@@ -179,11 +195,12 @@ const handleFileUpload = async (event) => {
       }});
     const message = {
         content: response.data.filePath,
-        type: 'image'
+        type: 'image',
+        sender: 'doctor'
     };
 
     stompClient.value.publish({
-        destination: `/app/consultation/${currentConsultation.value.consultationId}/message`,
+        destination: `/app/${currentConsultation.value.consultationId}/message`,
         body: JSON.stringify(message)
     });
 };
@@ -259,7 +276,6 @@ const toggleOnlineStatus = async () => {
     flex-direction: column;
     justify-items: center;
     margin-left: 80px;
-    overflow: auto;
     margin-right: 50px;
 }
 
@@ -274,6 +290,7 @@ h2 {
     flex-direction: column;
     height: 600px;
     width: 100%;
+  overflow: auto;
 }
 
 .chat-area {
@@ -290,11 +307,11 @@ h2 {
 }
 
 .message.user {
-    justify-content: flex-end;
+    justify-content: flex-start;
 }
 
 .message.doctor {
-    justify-content: flex-start;
+    justify-content: flex-end;
 }
 
 .message-content {
@@ -304,7 +321,7 @@ h2 {
     background: #f0f0f0;
 }
 
-.message.user .message-content {
+.message.doctor .message-content {
     background: #1890ff;
     color: white;
 }
