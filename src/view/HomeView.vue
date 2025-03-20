@@ -1,5 +1,5 @@
 <template>
-    <div class="wrapper">
+<!--    <div class="wrapper">
         <div class="top">
             <div class ="head">
                 <i class="fa-solid fa-location-dot"></i>
@@ -183,11 +183,11 @@
             </ul>
         </div>
         <BottomComponent/>
-    </div>
+    </div>-->
 </template>
 
 <script setup>
-import BottomComponent from "@/components/basic/TopComponent.vue";
+/*import BottomComponent from "@/components/basic/TopComponent.vue";
 import {axiosInstance, useStore} from "@/main";
 import {useRouter} from "vue-router";
 import {storeToRefs} from "pinia";
@@ -214,11 +214,11 @@ function getBusiness(orderTypeId){
             orderTypeId : orderTypeId
         }
     })
-}
+}*/
 </script>
 
 <style scoped>
-.wrapper{
+/*.wrapper{
     width: 100%;
     height: 100%;
 }
@@ -432,5 +432,5 @@ function getBusiness(orderTypeId){
     color: #333333;
     border: solid 1px #DDD;
     width: 16vw;
-}
+}*/
 </style>
