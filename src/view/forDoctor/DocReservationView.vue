@@ -44,6 +44,7 @@
                         <h3>历史就诊患者</h3>
                         <el-table :data="completedPatients" style="width: 100%">
                             <el-table-column prop="userId" label="患者账号" width="180" />
+                            <el-table-column prop="userName" label="患者姓名" width="120" />
                             <el-table-column label="操作">
                                 <template #default="{row}">
                                     <el-button
@@ -102,10 +103,7 @@ const initializeData = async () => {
 };
 
 const formatTime = (datetime) => {
-    return new Date(datetime).toLocaleTimeString('zh-CN', {
-        hour: '2-digit',
-        minute: '2-digit'
-    });
+  return new Date(datetime).toLocaleString();
 };
 
 const isCurrentSchedule = (schedule) => {
