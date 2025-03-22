@@ -6,7 +6,7 @@
                 <div class="body">
                     <h2>全部排班</h2>
                     <div class="button1">
-                        <el-button @click="router.go(-1)">返回</el-button>
+                        <el-button type="primary" @click="router.go(-1)">返回</el-button>
                     </div>
                     <el-table :data="allSchedules" style="width: 90%" border>
                         <el-table-column prop="scheduleId" label="ID" width="80"/>

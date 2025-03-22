@@ -6,7 +6,7 @@
                 <div class="body">
                     <h2>接诊</h2>
                     <div class="button1">
-                        <el-button @click="router.go(-1)">返回</el-button>
+                        <el-button type="primary" @click="router.go(-1)">返回</el-button>
                     </div>
                     <div class="detail-section">
                         <el-descriptions title="患者信息" border>
