@@ -81,32 +81,6 @@ const treatmentPlan = ref("");
 const fileInput = ref(null);
 const imageUrls = ref([]);
 const files = ref([]);
-// 诊断模板
-const diagnosisTemplates = ref([
-    { label: "感冒", value: "患者主诉鼻塞、流涕，诊断为普通感冒。" },
-    { label: "胃炎", value: "患者主诉上腹疼痛，诊断为急性胃炎。" },
-    { label: "高血压", value: "患者血压偏高，诊断为原发性高血压。" }
-]);
-const selectedDiagnosisTemplate = ref("");
-
-// 治疗模板
-const treatmentTemplates = ref([
-    { label: "感冒治疗", value: "建议多休息，服用感冒药，多喝水。" },
-    { label: "胃炎治疗", value: "建议服用胃药，避免辛辣食物。" },
-    { label: "高血压治疗", value: "建议低盐饮食，定期监测血压。" }
-]);
-const selectedTreatmentTemplate = ref("");
-
-// 应用诊断模板
-const applyDiagnosisTemplate = (value) => {
-    diagnosis.value = value;
-};
-
-// 应用治疗模板
-const applyTreatmentTemplate = (value) => {
-    treatmentPlan.value = value;
-};
-
 // 提交病历
 const submitMedicalRecord = async () => {
     if (!diagnosis.value || !treatmentPlan.value) {
@@ -135,6 +109,9 @@ const submitMedicalRecord = async () => {
 
         if (res.data && res.data.medicalRecordId) {
             ElMessage.success("病历提交成功");
+            // 清除当前患者的草稿
+            const draftKey = `medicalRecordDraft_${userId.value}`;
+            localStorage.removeItem(draftKey);
             await router.push({
                 path: "/docMedicalRecordInfo",
                 query: { recordId: res.data.medicalRecordId }
@@ -150,18 +127,20 @@ const submitMedicalRecord = async () => {
 
 // 保存草稿
 const saveDraft = () => {
+    const draftKey = `medicalRecordDraft_${userId.value}`; // 使用患者ID作为键
     const draft = {
         diagnosis: diagnosis.value,
         treatmentPlan: treatmentPlan.value,
         imageUrls: imageUrls.value
     };
-    localStorage.setItem("medicalRecordDraft", JSON.stringify(draft));
+    localStorage.setItem(draftKey, JSON.stringify(draft));
     ElMessage.success("草稿已保存");
 };
 
 // 加载草稿
 const loadDraft = () => {
-    const draft = localStorage.getItem("medicalRecordDraft");
+    const draftKey = `medicalRecordDraft_${userId.value}`; // 根据当前患者ID加载
+    const draft = localStorage.getItem(draftKey);
     if (draft) {
         const { diagnosis: draftDiagnosis, treatmentPlan: draftTreatmentPlan, imageUrls: draftImageUrls } = JSON.parse(draft);
         diagnosis.value = draftDiagnosis;
@@ -170,36 +149,6 @@ const loadDraft = () => {
     }
 };
 
-// 文件上传前的校验
-const beforeUpload = (file) => {
-    const isAllowedType = ["image/jpeg", "image/png", "image/gif"].includes(file.type);
-    const isWithinSize = file.size / 1024 / 1024 < 10; // 10MB
-
-    if (!isAllowedType) {
-        ElMessage.error("仅支持上传 JPG/PNG/GIF 格式的文件");
-        return false;
-    }
-    if (!isWithinSize) {
-        ElMessage.error("单个文件大小不能超过 10MB");
-        return false;
-    }
-    return true;
-};
-
-// 文件超出限制时的提示
-const handleExceed = () => {
-    ElMessage.warning("最多上传 5 个文件");
-};
-
-// 文件上传成功
-const handleUploadSuccess = (response, file) => {
-    if (response && response.url) {
-        file.url = response.url; // 假设后端返回文件URL
-        ElMessage.success("文件上传成功");
-    } else {
-        ElMessage.error("文件上传失败");
-    }
-};
 const handleFileUpload = (event) => {
     const newFiles = event.target.files;
     if (newFiles && newFiles.length > 0) {
