@@ -1,6 +1,6 @@
 <template>
-    <AdminTopComponent/>
     <div class="background">
+      <AdminTopComponent/>
         <div class="wrapper">
             <div class="container">
                 <div class="body">
