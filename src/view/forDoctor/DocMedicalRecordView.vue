@@ -26,7 +26,11 @@
                                     {{ formatDateTime(row.visitTime) }}
                                 </template>
                             </el-table-column>
-                            <el-table-column prop="diagnosis" label="诊断结果" />
+                            <el-table-column label="诊断结果">
+                              <template #default="{row}">
+                                {{ truncateText(row.diagnosis, 50) }}
+                              </template>
+                            </el-table-column>
                             <el-table-column label="操作" width="120">
                                 <template #default="{row}">
                                     <el-button
@@ -75,7 +79,10 @@ const loadRecords = async () => {
                 date: selectedDate.value // 传递日期参数
             }
         });
-        medicalRecords.value = res.data;
+        //按就诊时间降序
+        medicalRecords.value = res.data.sort((a, b) => {
+          return new Date(b.visitTime) - new Date(a.visitTime);
+        });
     } catch (error) {
         ElMessage.error('病历记录加载失败');
         console.error(error);
@@ -93,7 +100,13 @@ const formatDateTime = (datetime) => {
         minute: '2-digit'
     });
 };
-
+// 文本截断方法
+const truncateText = (text, maxLength) => {
+  if (!text) return "--";
+  return text.length > maxLength ?
+      text.substring(0, maxLength) + "..." :
+      text;
+};
 // 查看病历详情
 const viewMedicalRecordDetail = (recordId) => {
     router.push({
