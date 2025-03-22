@@ -19,7 +19,11 @@
                         </el-table-column>
                         <el-table-column prop="maxReservations" label="最大预约数" width="120"/>
                         <el-table-column prop="currentReservations" label="当前预约数" width="120"/>
-                        <el-table-column prop="status" label="状态" width="120"/>
+                        <el-table-column prop="status" label="状态" width="120">
+                          <template #default="{row}">
+                            {{ formatStatus(row.status) }}
+                          </template>
+                        </el-table-column>
                         <el-table-column label="操作" width="180">
                             <template #default="{row}">
                                 <el-button size="small" @click="showEditDialog(row)">编辑</el-button>
@@ -97,6 +101,18 @@ function isAdmin() {
 onBeforeMount(async () => {
     await fetchSchedule();
 });
+function formatStatus(status) {
+  switch (status) {
+    case 0:
+      return "活跃";
+    case 1:
+      return "已满";
+    case 2:
+      return "结束";
+    default:
+      return "未知";
+  }
+}
 function formatDateTime(datetime) {
     return new Date(datetime).toLocaleString();
 }
