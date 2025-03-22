@@ -24,6 +24,7 @@
                         </div>
                     </div>
                     <div class="content">
+                        {{knowledge.knowledgeExplain}}
                         <div class="image-preview" v-if="knowledge.imageUrls && knowledge.imageUrls.length > 0">
                             <div v-for="(url, imgIndex) in knowledge.imageUrls" :key="imgIndex" class="image-item">
                                 <a :href="getImageUrl(url)" target="_blank">
@@ -31,7 +32,6 @@
                                 </a>
                             </div>
                         </div>
-                        {{knowledge.knowledgeExplain}}
                     </div>
                 </div>
             </div>
@@ -152,13 +152,16 @@ function back(){
 </script>
 <style scoped>
 .image-preview{
+    width: 100%;
     display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;/* 竖直排列 */
 }
 .image-item{
-    display: flex;
-    width:89px;
-    margin-right: 25px;
-    height: 89px;
+    width: 400px;
+    margin-bottom: 10px;
+    text-align: center;
 }
 .background {
     background-color: #e9f2ff;
@@ -237,6 +240,7 @@ h2 {
     word-wrap: break-word; /* 允许在单词内换行 */
     white-space: pre-line; /* 保留换行符并正常换行 */
     overflow: auto;/*滑动*/
+    color: #555555;
 }
 .bookmark{
     display: flex;
