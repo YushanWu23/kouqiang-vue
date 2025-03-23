@@ -95,13 +95,13 @@ function passwordSave() {
             return;
         }
         alert('保存成功！');
-        router.push('/')
+        router.push('/userInfo')
     }).catch(error=>{
         console.error(error);
     });
 }
 function login() {
-    router.go(-1)
+  router.push('/login')
 }
 function sendEmailCode(){
     if (!user.value.userId) {
