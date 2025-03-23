@@ -44,7 +44,7 @@ const messages = ref([
 ]);
 const userInput = ref('');
 const isLoading = ref(false);
-
+const chatContainer = ref(null);
 const sendMessage = async () => {
     if (!userInput.value.trim() || isLoading.value) return;
     // 添加用户消息
@@ -63,34 +63,75 @@ const sendMessage = async () => {
     const currentInput = userInput.value;
     userInput.value = '';
 
-    try {
-        const response = await axiosInstance.post('/callModel', {
-            prompt: currentInput,
-            max_length: 2048,  // 可调整为参数
-            top_p: 0.7,
-            temperature: 0.95
-        });
-        // 更新最后一条消息
-        messages.value[loadingMsgIndex] = {
-            role: 'bot',
-            content: response.data.response.replace(/\\n/g, '\n')
-        };
-    } catch (error) {
-        console.error('API Error:', error);
-        messages.value[loadingMsgIndex] = {
-            role: 'bot',
-            content: '服务暂时不可用，请稍后再试。'
-        };
-    } finally {
-        isLoading.value = false;
+  try {
+    const response = await axiosInstance.post('/user/callModel', {
+      prompt: currentInput,
+      max_length: 2048,
+      top_p: 1.0,
+      temperature: 0.7,
+      userId: user.value.userId
+    });
+
+    // 检查响应数据是否有效
+    if (response.data && response.data.response) {
+      // 更新最后一条消息
+      messages.value[loadingMsgIndex] = {
+        role: 'bot',
+        content: response.data.response.replace(/\\n/g, '\n')
+      };
+    } else {
+      // 如果响应数据无效，显示错误信息
+      messages.value[loadingMsgIndex] = {
+        role: 'bot',
+        content: '服务暂时不可用，请稍后再试。'
+      };
     }
+  } catch (error) {
+    console.error('API Error:', error);
+    messages.value[loadingMsgIndex] = {
+      role: 'bot',
+      content: '服务暂时不可用，请稍后再试。'
+    };
+  } finally {
+    isLoading.value = false;
+    const container = chatContainer.value;
+    container.scrollTop = container.scrollHeight;
+  }
 };
+const clearMessages = async () => {
+  try {
+    // 清空本地消息
+    messages.value = [
+      { role: 'bot', content: '您好！我是口腔健康咨询助手，请问有什么可以帮您？' }
+    ];
+
+    await axiosInstance.post('/user/clearHistory', {
+      userId: user.value.userId
+    });
+
+    console.log('对话历史已清空');
+  } catch (error) {
+    console.error('清空对话历史失败:', error);
+    alert('清空对话历史失败，请稍后重试');
+  }
+};
+function isUser() {
+  if (user.value.userId ===''){
+    alert("先登陆")
+    router.push({
+      path:"/login"
+    })
+  }
+}
 onBeforeMount(()=>{
+  isUser();
+  clearMessages();
 });
-
-
 </script>
 <style scoped>
+.clear-btn{
+  margin-bottom: 10px;
+}
 .background {
     background-color: #e9f2ff;
     height: 100%;
@@ -133,7 +174,7 @@ onBeforeMount(()=>{
 }
 
 h2 {
-    margin-bottom: 20px;
+    margin-bottom: 10px;
     font-size: 30px;
     margin-left: 470px;
     margin-top: 10px;
