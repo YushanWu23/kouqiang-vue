@@ -59,7 +59,7 @@ onBeforeMount(fetchOrders1)
         <div class="wrapper">
             <div class="container">
                 <div class="body">
-                    <h2>确认订单</h2>
+                    <h2>支付订单</h2>
                     <div class="body1">
                         <div class="text1">
                             订单信息:

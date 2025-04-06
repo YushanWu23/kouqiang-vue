@@ -119,7 +119,7 @@ function regist() {
             return;
         }
         alert('注册成功！');
-        router.push('/')
+        router.push('/login')
     }).catch(error=>{
         console.error(error);
     });
