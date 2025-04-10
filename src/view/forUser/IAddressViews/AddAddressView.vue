@@ -4,7 +4,7 @@
         <div class="wrapper">
             <div class="container">
                 <div class="body">
-                    <h2>新增送货地址</h2>
+                    <h2>新增收货地址</h2>
                     <div class="info">
                         <div class="headsex">
                             <img src="../../../assets/img-new/用户无性别.png">
