@@ -97,7 +97,7 @@ function deleteOrder(orderId) {
                                     </div>
                                 </div>
                                 <ul class="orderList" v-show="order.showState">
-                                    <li v-for="item in order.orderDetailets">
+                                    <li v-for="item in order.orderDetails">
                                         <div class="left">
                                             <div class="leftText">
                                                 {{item.product.productName}}
@@ -138,7 +138,7 @@ function deleteOrder(orderId) {
                                     </div>
                                 </div>
                                 <ul class="orderList" v-show="order.showState">
-                                    <li v-for="item in order.orderDetailets">
+                                    <li v-for="item in order.orderDetails">
                                         <div class="left">
                                             <div class="leftText">
                                                 {{item.product.productName}}

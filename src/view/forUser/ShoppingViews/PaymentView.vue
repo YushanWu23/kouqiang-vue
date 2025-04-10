@@ -74,7 +74,7 @@ onBeforeMount(fetchOrders1)
                             </div>
                         </div>
                         <ul class="orderList" v-show="showState">
-                            <li v-for="item in orders.orderDetailets">
+                            <li v-for="item in orders.orderDetails">
                                 <div class="left">
                                     <div class="leftText">
                                         {{item.product.productName}}
