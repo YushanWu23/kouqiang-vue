@@ -6,7 +6,7 @@
                 <div class="body">
                     <h2>接诊</h2>
                     <div class="button1">
-                        <el-button type="primary" @click="router.go(-1)">返回</el-button>
+                        <el-button type="primary" @click="goBack">返回</el-button>
                     </div>
                     <div class="detail-section">
                         <el-descriptions title="患者信息" border>
@@ -81,6 +81,11 @@ const treatmentPlan = ref("");
 const fileInput = ref(null);
 const imageUrls = ref([]);
 const files = ref([]);
+function goBack(){
+  router.push({
+    path: "/docReservation"
+  });
+}
 // 提交病历
 const submitMedicalRecord = async () => {
     if (!diagnosis.value || !treatmentPlan.value) {
@@ -113,8 +118,7 @@ const submitMedicalRecord = async () => {
             const draftKey = `medicalRecordDraft_${userId.value}`;
             localStorage.removeItem(draftKey);
             await router.push({
-                path: "/docMedicalRecordInfo",
-                query: { recordId: res.data.medicalRecordId }
+                path: "docReservation"
             });
         } else {
             ElMessage.error("病历提交失败：未返回病历ID");
