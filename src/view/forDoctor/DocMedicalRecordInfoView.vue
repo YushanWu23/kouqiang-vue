@@ -1,5 +1,4 @@
 <template>
-    <DocTopComponent/>
     <div class="background">
         <div class="wrapper">
             <div class="container">
@@ -57,7 +56,6 @@ import { ref, onMounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { axiosInstance, useStore } from "@/main";
 import { ElMessage } from "element-plus";
-import DocTopComponent from "@/components/basic/DocTopComponent.vue";
 import { storeToRefs } from "pinia";
 
 const route = useRoute();
@@ -150,8 +148,8 @@ onMounted(() => {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     width: 1300px;
     margin-right: 20px;
-    height: 680px;
-    margin-top: 80px;
+    height: 710px;
+    margin-top: 30px;
 }
 
 .body {
