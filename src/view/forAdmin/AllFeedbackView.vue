@@ -120,7 +120,7 @@ li{
     padding: 10px 20px;
     margin-bottom: 20px;
     width:900px;
-    font-size: 20px;
+    font-size: 18px;
     word-wrap: break-word; /* 允许在单词内换行 */
     white-space: normal; /* 允许内容正常换行 */
 }
@@ -132,6 +132,14 @@ li{
     width:89px;
     margin-right: 25px;
     height: 89px;
+    margin-top: 5px;
+  align-items: center;
+}
+.preview-image{
+  display: flex;
+  align-items: center;
+  width:89px;
+  height: 75px;
 }
 .background {
     background-color: #e9f2ff;

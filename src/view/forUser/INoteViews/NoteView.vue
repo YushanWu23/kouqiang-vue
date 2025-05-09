@@ -179,7 +179,7 @@ li{
     padding: 10px 20px;
     margin-bottom: 20px;
     width:700px;
-    font-size: 20px;
+    font-size: 16px;
     word-wrap: break-word; /* 允许在单词内换行 */
     white-space: normal; /* 允许内容正常换行 */
 }

@@ -240,7 +240,7 @@ h2 {
     word-wrap: break-word; /* 允许在单词内换行 */
     white-space: pre-line; /* 保留换行符并正常换行 */
     overflow: auto;/*滑动*/
-    color: #555555;
+    /*color: #555555;*/
 }
 .bookmark{
     display: flex;

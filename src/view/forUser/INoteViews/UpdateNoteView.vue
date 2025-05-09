@@ -159,6 +159,7 @@ function submit () {
     display: flex;
     width:110px;
     margin-right: 25px;
+    margin-top: 5px;
 }
 .image-item a{
     height: 89px;
@@ -257,6 +258,7 @@ li{
     justify-items: center;
     align-items: center;
     margin-top: 70px;
+  margin-bottom: 20px;
 }
 .button2 button {
     width: 520px;
